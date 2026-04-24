@@ -1,15 +1,120 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  cnpj           Boolean                         // true = PJ, false = PF
+  nomeRazaoSocial String
+  cpfCnpj        String    @unique
+  email          String?
+  dataCadastro   DateTime  @default(now())
+
+  logradouro     String
+  numImovel      String
+  complemento    String?
+  bairro         String?
+  municipio      String
+  uf             String
+  cep            String
+
+  celular1       String
+  celular2       String?
+
+  pedidos        Pedido[]
+}
+
+model Pedido {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  numPedido      Int          @unique
+  dataHora       DateTime     @default(now())
+  valorTotal     Float
+  formaPagamento String
+
+  // Relações
+  clienteId      String       @db.ObjectId
+  cliente        Cliente      @relation(fields: [clienteId], references: [id])
+  itens          ItemPedido[]
+}
+
+model ItemPedido {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  numItem       Int
+  quantidade    Int
+  valorUnitario Float
+
+  // Relações
+  pedidoId      String         @db.ObjectId
+  pedido        Pedido         @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId     String         @db.ObjectId
+  produto       Produto        @relation(fields: [produtoId], references: [id])
+
+  movimentacao  Movimentacao?
+}
+
+model Produto {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  descricao      String
+  marca          String
+  detalhes       String?
+  unidadeMedida  String
+  precoUnitario  Float
+  qtdEstoque     Int              @default(0)
+ 
+  itens          ItemPedido[]
+  movimentacoes  Movimentacao[]
+
+  fornecedores   ProdutoFornecedor[]
+}
+
+model Fornecedor {
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  razaoSocial   String
+  nomeFantasia  String
+  cnpj          String              @unique
+  email         String
+
+  logradouro    String
+  numImovel     String
+  complemento   String?
+  bairro        String
+  municipio     String
+  uf            String
+  cep           String
+
+  telefone1     String
+  telefone2     String?
+
+  produtos      ProdutoFornecedor[]
+}
+
+model ProdutoFornecedor {
+  id              String     @id @default(auto()) @map("_id") @db.ObjectId
+  produtoId       String     @db.ObjectId
+  fornecedorId    String     @db.ObjectId
+  precoUltimaCompra Float?  
+
+  produto         Produto    @relation(fields: [produtoId], references: [id])
+  fornecedor      Fornecedor @relation(fields: [fornecedorId], references: [id])
+
+  @@unique([produtoId, fornecedorId])
+}
+
+model Movimentacao {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  codProduto    Int                              
+  dataHora      DateTime    @default(now())
+  movimento     Int                              
+  justificativa String                           
+
+  produtoId     String      @db.ObjectId
+  produto       Produto     @relation(fields: [produtoId], references: [id])
+
+  itemPedidoId  String?     @unique @db.ObjectId
+  itemPedido    ItemPedido? @relation(fields: [itemPedidoId], references: [id])
 }
