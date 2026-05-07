@@ -53,6 +53,7 @@ model Produto {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
   descricao      String
   marca          String
+  imagemUrl      String?
   detalhes       String?
   unidadeMedida  String
   precoCusto     Float
