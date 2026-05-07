@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 export const retrieveAll = async (req,res) =>{
     try{
-        const clientes= await prisma.cliente.findMany({
+        const cliente= await prisma.cliente.findMany({
       include
     });
-        res.json(clientes)
+        res.json(cliente)
     }catch(error){
         console.error(error)
         res.status(500).json({error:error.message})
@@ -93,7 +93,7 @@ export const update = async (req,res) =>{
         return res.status(400).json({ erro: "O id do cliente é obrigatório!" });
     }
 
-        const cliente = await prisma.cliente.findUnique({data:{id:id}})
+        const cliente = await prisma.cliente.delete({where:{id:id}})
 
         res.json(cliente)
     }catch(error){
