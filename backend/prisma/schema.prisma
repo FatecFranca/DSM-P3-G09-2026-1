@@ -59,6 +59,8 @@ model Produto {
   precoCusto     Float
   precoUnitario  Float
   qtdEstoque     Int              @default(0)
+  qtdMinima      Int              @default(10)
+  createdAt      DateTime         @default(now())
   itens          ItemPedido[]
   movimentacoes  Movimentacao[]
   fornecedores   ProdutoFornecedor[]
@@ -79,6 +81,7 @@ model Fornecedor {
   cep           String
   telefone1     String
   telefone2     String?
+  createdAt     DateTime            @default(now())
   produtos      ProdutoFornecedor[]
 }
 
