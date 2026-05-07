@@ -1,5 +1,5 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client'); // Primeira novidade, importa o prisma
+const { PrismaClient } = require('@prisma/client');
 const swaggerUi=require('swagger-ui-express')
 const swaggerDocument=require('./swagger.json') 
 

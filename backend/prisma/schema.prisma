@@ -14,7 +14,6 @@ model Cliente {
   cpfCnpj        String    @unique
   email          String?
   dataCadastro   DateTime  @default(now())
-
   logradouro     String
   numImovel      String
   complemento    String?
@@ -22,10 +21,8 @@ model Cliente {
   municipio      String
   uf             String
   cep            String
-
   celular1       String
   celular2       String?
-
   pedidos        Pedido[]
 }
 
@@ -35,8 +32,6 @@ model Pedido {
   dataHora       DateTime     @default(now())
   valorTotal     Float
   formaPagamento String
-
-  // Relações
   clienteId      String       @db.ObjectId
   cliente        Cliente      @relation(fields: [clienteId], references: [id])
   itens          ItemPedido[]
@@ -47,13 +42,10 @@ model ItemPedido {
   numItem       Int
   quantidade    Int
   valorUnitario Float
-
-  // Relações
   pedidoId      String         @db.ObjectId
   pedido        Pedido         @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
   produtoId     String         @db.ObjectId
   produto       Produto        @relation(fields: [produtoId], references: [id])
-
   movimentacao  Movimentacao?
 }
 
@@ -63,12 +55,11 @@ model Produto {
   marca          String
   detalhes       String?
   unidadeMedida  String
+  precoCusto     Float
   precoUnitario  Float
   qtdEstoque     Int              @default(0)
- 
   itens          ItemPedido[]
   movimentacoes  Movimentacao[]
-
   fornecedores   ProdutoFornecedor[]
 }
 
@@ -78,7 +69,6 @@ model Fornecedor {
   nomeFantasia  String
   cnpj          String              @unique
   email         String
-
   logradouro    String
   numImovel     String
   complemento   String?
@@ -86,10 +76,8 @@ model Fornecedor {
   municipio     String
   uf            String
   cep           String
-
   telefone1     String
   telefone2     String?
-
   produtos      ProdutoFornecedor[]
 }
 
@@ -98,10 +86,8 @@ model ProdutoFornecedor {
   produtoId       String     @db.ObjectId
   fornecedorId    String     @db.ObjectId
   precoUltimaCompra Float?  
-
   produto         Produto    @relation(fields: [produtoId], references: [id])
   fornecedor      Fornecedor @relation(fields: [fornecedorId], references: [id])
-
   @@unique([produtoId, fornecedorId])
 }
 
@@ -111,10 +97,8 @@ model Movimentacao {
   dataHora      DateTime    @default(now())
   movimento     Int                              
   justificativa String                           
-
   produtoId     String      @db.ObjectId
   produto       Produto     @relation(fields: [produtoId], references: [id])
-
   itemPedidoId  String?     @unique @db.ObjectId
   itemPedido    ItemPedido? @relation(fields: [itemPedidoId], references: [id])
 }
