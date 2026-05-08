@@ -15,7 +15,7 @@ export const retrieveAll = async (req,res) =>{
 export const update = async (req,res) =>{
     try{
         const {id}= req.params;
-        const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdEstoque,qtdMinima}=req.body;
+        const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdMinima}=req.body;
 
         if(!id){
         return res.status(400).json({ erro: "O id do produto é obrigatório!" });
@@ -23,7 +23,7 @@ export const update = async (req,res) =>{
         
         const produto = await prisma.produto.update({
             where: {id},
-            data: {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdEstoque,qtdMinima}
+            data: {descricao:descricao,marca:marca,imagemUrl:imagemUrl,detalhes:detalhes,unidadeMedida:unidadeMedida,precoCusto:precoCusto,precoUnitario:precoUnitario,qtdMinima:qtdMinima}
 
         });
         res.json(produto);
@@ -36,7 +36,7 @@ export const update = async (req,res) =>{
  export const create = async (req,res )=>{
 
     try{
-        const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdEstoque,qtdMinima}=req.body;
+        const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdMinima}=req.body;
 
         const consulta= await prisma.produto.findFirst({where:{descricao:descricao}});
         if (consulta){ //Se ja tiver alguem com a mesmo descricao
@@ -52,7 +52,6 @@ export const update = async (req,res) =>{
                 unidadeMedida:unidadeMedida,
                 precoCusto:precoCusto,
                 precoUnitario:precoUnitario,
-                qtdEstoque:qtdEstoque,
                 qtdMinima:qtdMinima
             }
         })
@@ -71,7 +70,7 @@ export const update = async (req,res) =>{
         return res.status(400).json({ erro: "O id do produto é obrigatório!" });
     }
         
-        const produto = await prisma.produto.findUnique({data:{id:id}})
+        const produto = await prisma.produto.findUnique({where:{id:id}})
 
         res.json(produto)
     }catch(error){
@@ -104,5 +103,34 @@ export const update = async (req,res) =>{
       // HTTP 500: Internal Server Error
       res.status(500).send(error)
     }
+  }
+}
+export const addFornecedor = async (req, res) => {
+  try {
+    const { id } = req.params  // produtoId
+    const { fornecedorId, precoUltimaCompra } = req.body
+
+    const vinculo = await prisma.produtoFornecedor.upsert({
+      where: { produtoId_fornecedorId: { produtoId: id, fornecedorId: fornecedorId } },
+      update: { precoUltimaCompra: precoUltimaCompra },
+      create: { produtoId: id, fornecedorId: fornecedorId, precoUltimaCompra: precoUltimaCompra }
+    })
+    res.json(vinculo)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const removeFornecedor = async (req, res) => {
+  try {
+    const { id, fornecedorId } = req.params
+    await prisma.produtoFornecedor.delete({
+      where: { produtoId_fornecedorId: { produtoId: id, fornecedorId: fornecedorId } }
+    })
+    res.status(204).end()
+  } catch (error) {
+    if (error?.code === 'P2025') return res.status(404).end()
+    res.status(500).json({ error: error.message })
   }
 }

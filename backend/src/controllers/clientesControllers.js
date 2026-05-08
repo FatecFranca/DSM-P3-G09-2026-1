@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export const retrieveAll = async (req,res) =>{
     try{
         const cliente= await prisma.cliente.findMany({
-      include
+      include:{pedidos:true}
     });
         res.json(cliente)
     }catch(error){
@@ -21,10 +21,15 @@ export const update = async (req,res) =>{
         if(!id){
         return res.status(400).json({ erro: "O id do cliente é obrigatório!" });
     }
-        
+    
+        const consulta= await prisma.cliente.findFirst({where:{cnpj:cnpj,NOT: {id}}});
+        if (consulta){ //Se ja tiver alguem com o mesmo cnpj ou cpf
+            return res.status(400).json({ erro: "Ja existe um cliente com este cpf/cnpj"})
+        }
+
         const cliente = await prisma.cliente.update({
             where: {id},
-            data: {cnpj,nomeRazaoSocial,cpfCnpj,email,dataCadastro,logradouro, numImovel,complemento,bairro,municipio,uf,cep,celular1,celular2}
+            data: {cnpj:cnpj,nomeRazaoSocial:nomeRazaoSocial,cpfCnpj:cpfCnpj,email:email,dataCadastro:dataCadastro,logradouro:logradouro, numImovel:numImovel,complemento:complemento,bairro:bairro,municipio:municipio,uf:uf,cep:cep,celular1:celular1,celular2:celular2}
 
         });
         res.json(cliente);
@@ -39,7 +44,7 @@ export const update = async (req,res) =>{
     try{
         const {cnpj,nomeRazaoSocial,cpfCnpj,email,dataCadastro,logradouro, numImovel,complemento,bairro,municipio,uf,cep,celular1,celular2}=req.body;
 
-        const consulta= await prisma.cliente.findFirst({where:{cnpj:cnpj}});
+        const consulta= await prisma.cliente.findUnique({where:{cnpj:cnpj}});
         if (consulta){ //Se ja tiver alguem com o mesmo cnpj ou cpf
             return res.status(400).json({ erro: "Ja existe um cliente com este cpf/cnpj"})
         }
@@ -77,7 +82,7 @@ export const update = async (req,res) =>{
         return res.status(400).json({ erro: "O id do cliente é obrigatório!" });
     }
         
-        const cliente = await prisma.cliente.findUnique({data:{id:id}})
+        const cliente = await prisma.cliente.findUnique({where:{id:id},include:{pedidos:true}})
 
         res.json(cliente)
     }catch(error){

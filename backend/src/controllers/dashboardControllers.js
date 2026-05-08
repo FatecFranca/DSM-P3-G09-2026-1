@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 export const recents = async (req,res) =>{
     try{
-        const dashboard= await prisma.pedidos.findMany({
+        const dashboard= await prisma.pedido.findMany({
             where: {
                 createdAt: {
                     gte: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
@@ -24,7 +24,7 @@ export const estoqueCritico = async (req,res) =>{
     try{
         const produtos= await prisma.produto.findMany()
 
-        const dashboard = await produtos.filter(produto=> produto.qtdEstoque < produto.qtdMinima)
+        const dashboard = produtos.filter(produto=> produto.qtdEstoque < produto.qtdMinima)
 
         res.json(dashboard);
     }catch(error){
