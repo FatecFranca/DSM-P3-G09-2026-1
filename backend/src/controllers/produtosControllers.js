@@ -134,3 +134,35 @@ export const removeFornecedor = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+export const uploadImagem = async (req,res) => {
+
+    try {
+        const { id } = req.params;
+        if (!req.file) {
+            return res.status(400).json({
+                erro: "Imagem obrigatória"
+            });
+        }
+
+        const produto =
+            await prisma.produto.update({
+            where: {
+                id
+            },
+            data: {
+                imagemUrl: req.file.path
+            }
+        });
+
+        res.json(produto);
+
+    } catch(error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+}
