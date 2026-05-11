@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 export const retrieveAll = async (req,res) =>{
     try{
         const produto= await prisma.produto.findMany({
-      include
+      include:{movimentacoes:true,fornecedores:true}
     });
         res.json(produto)
     }catch(error){

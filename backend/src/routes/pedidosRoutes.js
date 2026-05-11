@@ -8,5 +8,7 @@ router.post('/',pedidosControllers.create);
 router.get('/:id',pedidosControllers.retrieveOne);
 router.put('/:id',pedidosControllers.update);
 router.delete('/:id',pedidosControllers.deletePedido);
+router.post('/item', pedidosControllers.createItemPedido);
+router.put('/item/:id', pedidosControllers.updateItemPedido);
 
 export default router;  

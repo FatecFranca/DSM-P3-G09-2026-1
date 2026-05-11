@@ -4,7 +4,6 @@ export async function registrarEntrada(
     tx,
     produtoId,
     quantidade,
-    codProduto,
     justificativa
 ) {
     const produto = await tx.produto.findUnique({
@@ -22,7 +21,6 @@ export async function registrarEntrada(
             justificativa,
             quantidade,
             produtoId,
-            codProduto
         }
     });
 
@@ -42,7 +40,6 @@ export async function registrarSaida(
     produtoId,
     quantidade,
     itemPedidoId,
-    codProduto,
     justificativa
 ) {
 
@@ -65,7 +62,6 @@ export async function registrarSaida(
             justificativa,
             quantidade,
             produtoId,
-            codProduto,
             itemPedidoId
         }
         }
@@ -86,7 +82,6 @@ export async function atualizarSaida(
     produtoId,
     novaQuantidade,
     itemPedidoId,
-    codProduto,
     justificativa
 ) {
 
@@ -138,7 +133,6 @@ export async function atualizarSaida(
             justificativa,
             quantidade: Math.abs(diferenca),
             produtoId,
-            codProduto,
             itemPedidoId
         }
     });
@@ -148,7 +142,6 @@ export async function cancelarSaida(
     produtoId,
     quantidade,
     itemPedidoId,
-    codProduto,
     justificativa
 ) {
     const produto = await tx.produto.findUnique({
@@ -176,7 +169,6 @@ export async function cancelarSaida(
             justificativa,
             quantidade,
             produtoId,
-            codProduto,
             itemPedidoId
         }
     });

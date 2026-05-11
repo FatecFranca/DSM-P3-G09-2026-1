@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import {registrarSaida,atualizarSaida,cancelarSaida} from '../services/movimentacaoService';
+import {registrarSaida,atualizarSaida,cancelarSaida} from '../services/movimentacaoService.js';
 
 const prisma = new PrismaClient()
 
@@ -110,7 +110,6 @@ export const update = async (req,res) =>{
                     item.produtoId,
                     item.quantidade,
                     item.id,
-                    produto.codProduto,
                     justificativa
                 );
             }
@@ -148,14 +147,15 @@ export const update = async (req,res) =>{
 
 export const createItemPedido = async (req,res) => {
     try{
-        const {numItem,quantidade,valorUnitario,pedidoId,produtoId,justificativa}=req.body;
+        const {numItem,quantidade,pedidoId,produtoId,justificativa}=req.body;
         const resultado = await prisma.$transaction(async (tx) => {
-            const valorTotal =quantidade * valorUnitario;
             const produto = await tx.produto.findUnique({
                 where: {
                     id: produtoId
                 }
             });
+            const valorUnitario = produto.precoUnitario;
+            const valorTotal =quantidade * valorUnitario;
             const itemPedido =
                 await tx.itemPedido.create({
                 data: {
@@ -172,7 +172,6 @@ export const createItemPedido = async (req,res) => {
                 produtoId,
                 quantidade,
                 itemPedido.id,
-                produto.codProduto,
                 justificativa
             );
             const soma =
@@ -204,14 +203,14 @@ export const createItemPedido = async (req,res) => {
 
         res.status(500).json({
             error: error.message
-        });
+        }); 
     }
 }
 
 export const updateItemPedido = async (req,res) => {
     try{
         const {id} = req.params;
-        const {numItem,quantidade,valorUnitario,pedidoId,produtoId,justificativa}=req.body;
+        const {numItem,quantidade,pedidoId,produtoId,justificativa}=req.body;
         
         const resultado = await prisma.$transaction(async (tx) => {
 
@@ -220,13 +219,12 @@ export const updateItemPedido = async (req,res) => {
                     id: produtoId
                 }
             });
-            
+            const valorUnitario = produto.precoUnitario;
             await atualizarSaida(
                 tx,
                 produtoId,
                 quantidade,
                 id,
-                produto.codProduto,
                 justificativa
             );
 

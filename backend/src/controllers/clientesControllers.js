@@ -44,7 +44,7 @@ export const update = async (req,res) =>{
     try{
         const {cnpj,nomeRazaoSocial,cpfCnpj,email,dataCadastro,logradouro, numImovel,complemento,bairro,municipio,uf,cep,celular1,celular2}=req.body;
 
-        const consulta= await prisma.cliente.findUnique({where:{cnpj:cnpj}});
+        const consulta= await prisma.cliente.findUnique({where:{cpfCnpj:cpfCnpj}});
         if (consulta){ //Se ja tiver alguem com o mesmo cnpj ou cpf
             return res.status(400).json({ erro: "Ja existe um cliente com este cpf/cnpj"})
         }

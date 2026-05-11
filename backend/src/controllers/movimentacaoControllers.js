@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { registrarEntrada } from '../services/movimentacaoService';
+import { registrarEntrada } from '../services/movimentacaoService.js';
 const prisma = new PrismaClient()
 
 export const retrieveAll = async (req,res) =>{
@@ -16,14 +16,13 @@ export const retrieveAll = async (req,res) =>{
  export const create = async (req,res )=>{
 
     try{
-        const {codProduto,quantidade,justificativa,produtoId}=req.body;
+        const {quantidade,justificativa,produtoId}=req.body;
 
         await prisma.$transaction(async (tx) => {
             await registrarEntrada(
                 tx,
                 produtoId,
                 quantidade,
-                codProduto,
                 justificativa)
         }
     )
