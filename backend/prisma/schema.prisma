@@ -97,8 +97,7 @@ model ProdutoFornecedor {
 }
 
 model Movimentacao {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  codProduto    Int                              
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId                             
   dataHora      DateTime    @default(now())
   quantidade     Int                              
   justificativa String                           
