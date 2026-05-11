@@ -3,7 +3,7 @@ export default async function home(){
 
     return(
         <div>
-            <h1>dsadasdad</h1>
+            <h1>dsadasdaddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</h1>
         </div>
     )
 }
