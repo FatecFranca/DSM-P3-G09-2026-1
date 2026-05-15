@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Usuario{
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  nome           String
+  email          String    @unique
+  senha          String
+  ativo          Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  admin          Boolean   @default(false)
+}
+
 model Cliente {
   id             String    @id @default(auto()) @map("_id") @db.ObjectId
   cnpj           Boolean                         // true = PJ, false = PF
