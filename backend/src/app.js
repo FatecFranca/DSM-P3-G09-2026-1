@@ -7,6 +7,7 @@ import produtosRoutes from './routes/produtosRoutes.js';
 import pedidosRoutes from './routes/pedidosRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import movimentacoesRoutes from './routes/movimentacaoRoutes.js';
+import authRoutes from "./routes/authRoutes.js"
 
 const app = express();
 
@@ -33,5 +34,7 @@ app.use('/pedidos', pedidosRoutes);
 app.use('/dashboard', dashboardRoutes);
 
 app.use('/movimentacoes', movimentacoesRoutes);
+
+app.use("/auth", authRoutes)
 
 export default app;
