@@ -8,12 +8,14 @@ export const recents = async (req, res) => {
     const dashboard = await prisma.pedido.findMany({
       where: {
         usuarioId: req.usuario.id,
-        dataHora: {
+        createdAt: {
           gte: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
         }
       },
       orderBy: {
-        dataHora: "desc"
+        createdAt: "desc"
+      },include:{
+        cliente:true
       }
     })
 
@@ -115,7 +117,7 @@ export const pedidosMes = async (req, res) => {
     const pedidosDoMes = await prisma.pedido.findMany({
       where: {
         usuarioId: req.usuario.id,
-        dataHora: {
+        createdAt: {
           gte: inicioMes,
           lt: fimMes
         }

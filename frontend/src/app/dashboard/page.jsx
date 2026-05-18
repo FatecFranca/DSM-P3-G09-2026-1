@@ -159,7 +159,12 @@ const [estoqueCritico, setEstoqueCritico] = useState([])
  useEffect(() => {
   async function carregar() {
     try {
-      const res = await fetch("http://localhost:3000/dashboard/produtos-dia");
+      const token = localStorage.getItem("token")
+      const res = await fetch("http://localhost:3001/dashboard/produtos-dia", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
       const data = await res.json();
 
       setEstoqueDia(data);
@@ -177,7 +182,12 @@ const [clienteDia, setClienteDia] = useState([])
  useEffect(() => {
   async function carregar() {
     try {
-      const res = await fetch("http://localhost:3000/dashboard/clientes-dia");
+      const token = localStorage.getItem("token")
+      const res = await fetch("http://localhost:3001/dashboard/clientes-dia", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
       const data = await res.json();
 
       setClienteDia(data);
@@ -195,7 +205,12 @@ const [fornecedoresDia, setFornecedoresDia] = useState([])
  useEffect(() => {
   async function carregar() {
     try {
-      const res = await fetch("http://localhost:3000/dashboard/fornecedores-dia");
+      const token = localStorage.getItem("token")
+      const res = await fetch("http://localhost:3001/dashboard/fornecedores-dia", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
       const data = await res.json();
 
       setFornecedoresDia(data);
@@ -212,7 +227,12 @@ const [pedidosDia, setPedidosDia] = useState([])
  useEffect(() => {
   async function carregar() {
     try {
-      const res = await fetch("http://localhost:3000/dashboard/pedidos-dia");
+      const token = localStorage.getItem("token")
+      const res = await fetch("http://localhost:3001/dashboard/pedidos-dia", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
       const data = await res.json();
 
       setPedidosDia(data);
