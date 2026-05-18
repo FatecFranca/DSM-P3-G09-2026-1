@@ -1,8 +1,229 @@
+"use client"
 import {Card, CardHeader,CardTitle,CardDescription,CardAction,CardContent,CardFooter} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
-export default async function home(){
+import { Package, ShoppingCart, Users, Building2, TriangleAlert } from "lucide-react"
+import {getPedidosMes,getRecentes,getEstoqueCritico,getProdutosEmEstoque,getTotalClientes,getTotalFornecedores} from "@/services/dashboardService"
+import { useEffect,useState } from "react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+export default function Home(){
+
+    const horario = new Date().toLocaleTimeString("pt-BR",
+  {
+    weekday:"long",
+    day:"2-digit",
+    month:"short",
+    year:"numeric",
+    hour:"2-digit",
+    minute:"2-digit"
+  })
+  
+  const [produtos,setProdutos] = useState(0)
+
+  useEffect(() => {
+
+    async function carregar() {
+
+      try{
+
+        const data = await getProdutosEmEstoque()
+
+        setProdutos(data)
+
+      } catch(error){
+        console.error(error)
+      }
+    }
+
+    carregar()
+
+  },[])
+
+  const [pedidos,setPedidos] = useState(0)
+
+  useEffect(() => {
+
+    async function carregar() {
+
+      try{
+
+        const data = await getPedidosMes()
+
+        setPedidos(data)
+
+      } catch(error){
+        console.error(error)
+      }
+    }
+
+    carregar()
+
+  },[])
+  const [fornecedores,setFornecedores] = useState(0)
+
+  useEffect(() => {
+
+    async function carregar() {
+
+      try{
+
+        const data = await getTotalFornecedores()
+
+        setFornecedores(data)
+
+      } catch(error){
+        console.error(error)
+      }
+    }
+
+    carregar()
+
+  },[])
+
+  const [clientes,setClientes] = useState(0)
+
+  useEffect(() => {
+
+    async function carregar() {
+
+      try{
+
+        const data = await getTotalClientes()
+
+        setClientes(data)
+
+      } catch(error){
+        console.error(error)
+      }
+    }
+
+    carregar()
+
+  },[])
 
 
+   const [recentes, setRecentes] = useState([])
+
+  useEffect(() => {
+
+    async function carregar() {
+
+      try {
+
+        const data = await getRecentes()
+
+        setRecentes(data)
+
+      } catch(error) {
+
+        console.error(error)
+
+      }
+    }
+
+    carregar()
+
+  }, [])
+
+const [estoqueCritico, setEstoqueCritico] = useState([])
+
+  useEffect(() => {
+
+    async function carregar() {
+
+      try {
+
+        const data = await getEstoqueCritico()
+
+        setEstoqueCritico(data)
+
+      } catch(error) {
+
+        console.error(error)
+
+      }
+    }
+
+    carregar()
+
+  }, [])
+
+  const [estoqueDia, setEstoqueDia] = useState([])
+
+ useEffect(() => {
+  async function carregar() {
+    try {
+      const res = await fetch("http://localhost:3000/dashboard/produtos-dia");
+      const data = await res.json();
+
+      setEstoqueDia(data);
+    } catch (error) {
+      console.error(error);
+      setEstoqueDia([]);
+    }
+  }
+
+  carregar();
+}, []);
+
+const [clienteDia, setClienteDia] = useState([])
+
+ useEffect(() => {
+  async function carregar() {
+    try {
+      const res = await fetch("http://localhost:3000/dashboard/clientes-dia");
+      const data = await res.json();
+
+      setClienteDia(data);
+    } catch (error) {
+      console.error(error);
+      setClienteDia([]);
+    }
+  }
+
+  carregar();
+}, []);
+
+const [fornecedoresDia, setFornecedoresDia] = useState([])
+
+ useEffect(() => {
+  async function carregar() {
+    try {
+      const res = await fetch("http://localhost:3000/dashboard/fornecedores-dia");
+      const data = await res.json();
+
+      setFornecedoresDia(data);
+    } catch (error) {
+      console.error(error);
+      setFornecedoresDia([]);
+    }
+  }
+
+  carregar();
+}, []);
+const [pedidosDia, setPedidosDia] = useState([])
+
+ useEffect(() => {
+  async function carregar() {
+    try {
+      const res = await fetch("http://localhost:3000/dashboard/pedidos-dia");
+      const data = await res.json();
+
+      setPedidosDia(data);
+    } catch (error) {
+      console.error(error);
+      setPedidosDia([]);
+    }
+  }
+
+  carregar();
+}, []);
     return(
         <div className="flex flex-col ">
             <div className="flex flex-col pl-13">
@@ -13,7 +234,7 @@ export default async function home(){
                     <h1 className="text-white text-3xl font-black">DASHBOARD</h1>
                     <span className="pr-15"><Card className="p-2 background-sidebar border border-zinc-600 rounded-xa">
                         <CardContent>
-                            horarioaaaaaaa
+                            {horario}
                         </CardContent>
                         </Card></span>
                 </div>
@@ -23,12 +244,16 @@ export default async function home(){
                     <Card className="w4/10 background-sidebar border border-zinc-600 border-t-3 border-t-orange-500">
                         <CardHeader>
                             <CardTitle className="flex justify-between ">
-                                <div>logo</div>
-                                <div>+12</div>
+                                <div className="bg-orange-500/20 p-2 rounded-lg">
+                                    <Package className="text-orange-500" size={20} />
+                                </div>
+                                <span className="flex items-center justify-center text-xs font-semibold text-green-400 bg-green-400/15 px-2 py-1 rounded-full">
+                                    + {estoqueDia.length??0} hoje
+                                </span>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="h-12 justify-self-start align-center">
-                            api
+                        <CardContent className="flex flex-col items-start justify-center pb-2 h-12">
+                            <div className="mt-13 text-orange-500">{produtos}</div>
                         </CardContent>
                         <CardFooter className="background-sidebar">
                             Produtos em estoque
@@ -39,14 +264,18 @@ export default async function home(){
                     <Card className="w4/10 background-sidebar border border-zinc-600 border-t-3 border-t-orange-500">
                         <CardHeader>
                             <CardTitle className="flex justify-between ">
-                                <div>logo</div>
-                                <div>+12</div>
+                                <div className="bg-green-500/20 p-2 rounded-lg">
+                                    <ShoppingCart className="text-green-500" size={20} />
+                                </div>
+                                <span className="flex items-center justify-center text-xs font-semibold text-green-400 bg-green-400/15 px-2 py-1 rounded-full">
+                                    + {pedidosDia.length??0} hoje
+                                </span>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="h-12 justify-self-start align-center">
-                            api
+                        <CardContent className="flex flex-col items-start justify-center pb-2 h-12">
+                            <div className="mt-13 text-green-500">{pedidos}</div>
                         </CardContent>
-                        <CardFooter className="background-sidebar">
+                        <CardFooter className="background-sidebar ">
                             Pedidos do Mês
                         </CardFooter>
                     </Card>
@@ -55,12 +284,16 @@ export default async function home(){
                     <Card className="w4/10 background-sidebar border border-zinc-600 border-t-3 border-t-orange-500">
                         <CardHeader>
                             <CardTitle className="flex justify-between ">
-                                <div>logo</div>
-                                <div>+12</div>
+                                <div className="bg-purple-500/20 p-2 rounded-lg">
+                                    <Users className="text-purple-500" size={20} />
+                                </div>
+                                <span className="flex items-center justify-center text-xs font-semibold text-green-400 bg-green-400/15 px-2 py-1 rounded-full">
+                                    + {clienteDia.length??0} hoje
+                                </span>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="h-12 justify-self-start align-center">
-                            api
+                        <CardContent className="flex flex-col items-start justify-center pb-2 h-12">
+                            <div className="mt-13 text-purple-500">{clientes}</div>
                         </CardContent>
                         <CardFooter className="background-sidebar">
                             Clientes Ativos
@@ -71,12 +304,16 @@ export default async function home(){
                     <Card className="w4/10 background-sidebar border border-zinc-600 border-t-3 border-t-orange-500">
                         <CardHeader>
                             <CardTitle className="flex justify-between ">
-                                <div>logo</div>
-                                <div>+12</div>
+                                <div className="bg-cyan-500/20 p-2 rounded-lg">
+                                    <Building2 className="text-cyan-500" size={20} />
+                                </div>
+                                <span className="flex items-center justify-center text-xs font-semibold text-green-400 bg-green-400/15 px-2 py-1 rounded-full">
+                                    + {fornecedoresDia.length??0} hoje
+                                </span>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="h-12 justify-self-start align-center">
-                            api
+                        <CardContent className="flex flex-col items-start justify-center pb-2 h-12">
+                            <div className="mt-13 text-cyan-500">{fornecedores}</div>
                         </CardContent>
                         <CardFooter className="background-sidebar">
                             Fornecedores
@@ -87,29 +324,95 @@ export default async function home(){
             <div>
                 <div className="flex flex-wrap gap-4 p-13">
                 <div className="flex-3">
-                    <Card className="w7.5/10 h-100 background-sidebar border border-zinc-600 border-t-3 border-t-zinc-500">
-                        <CardHeader className=' border-b border-zinc-600 pb-4'>
-                            <CardTitle className="flex justify-between ">
-                                <div><b>Pedidos recentes</b></div>
-                                <div><a href="#pedidos" className="hover:border-orange-500 hover:text-orange-500">ver todos</a></div>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="h-66 overflow-y-auto">
-                            api.map
-                        </CardContent>
-                        <CardFooter className="background-sidebar border-t border-zinc-600">
-                        </CardFooter>
-                    </Card>
+                <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-zinc-500 h-100 overflow-y-auto">
+                    <CardTitle className=" flex justify-between p-2 pl-4 -mt-2 pr-4">
+                        <h1 className="text-white ">Pedidos Recentes</h1>
+                        <h1 className="text-orange-400 "><a href="/pedidos"> Ver Todos</a></h1>
+                    </CardTitle>
+                        <Table>
+                    
+        <TableHeader className="border-t-2 border-t-zinc-500 hover:bg-zinc-900">
+
+          <TableRow className="bg-zinc-900">
+            <TableHead className="text-white pl-4">pedido</TableHead>
+            <TableHead className="text-white ">cliente</TableHead>
+            <TableHead className="text-white ">valor</TableHead>
+            <TableHead className="text-white ">data</TableHead>
+          </TableRow>
+
+        </TableHeader>
+
+        <TableBody>
+
+          {recentes.map((recentes) => (
+
+            <TableRow key={recentes.id}>
+
+              <TableCell className="text-orange-500">
+                {recentes.numPedido}
+              </TableCell>
+
+              <TableCell>
+                 {recentes.cliente.nome}
+              </TableCell>
+
+              <TableCell>
+                R$ {recentes.valorTotal}
+              </TableCell>
+
+              <TableCell>
+                {recentes.dataHora}
+              </TableCell>
+
+            </TableRow>
+
+          ))}
+
+        </TableBody>
+
+      </Table>
+
+                </Card>
                 </div>
                 <div className="flex-1">
                     <Card className="w2.5/10 h-100 background-sidebar border border-zinc-600 border-t-3 border-t-red-500">
                         <CardHeader className=' border-b border-zinc-600 pb-4'>
-                            <CardTitle className="flex justify-start ">
-                                <div className="text-red-500">logo</div>
+                            <CardTitle className="flex justify-start gap-5">
+                                <TriangleAlert className="text-red-500"></TriangleAlert>
+                                <div className="text-red-500">Estoque Critico</div>
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="h-60 overflow-y-auto">
-                            api.map
+                        <CardContent className="h-60 overflow-y-auto flex flex-col gap-3 pt-2">
+                            {estoqueCritico.map((produto) => {
+                                const porcentagem = Math.min((produto.qtdEstoque / produto.qtdMinima) * 100, 100);
+                                const corTexto =
+                                porcentagem <= 30 ? "text-red-500" : "text-yellow-500";
+                                const corBarra =
+                                porcentagem <= 30 ? "bg-red-500" : "bg-yellow-500";
+
+                            return (
+                            <div
+                                key={produto.id}
+                                className="bg-zinc-800 border border-zinc-700 rounded-lg p-3"
+                            >
+                                <p className="text-sm text-white font-medium mb-2 leading-tight">
+                                {produto.descricao}
+                                </p>
+
+                                <div className="flex items-center gap-3">
+                                <div className="flex-1 h-1 bg-zinc-600 rounded-full overflow-hidden">
+                                    <div
+                                    className={`h-full rounded-full transition-all ${corBarra}`}
+                                    style={{ width: `${porcentagem}%` }}
+                                    />
+                                </div>
+                                <span className={`text-xs font-bold tabular-nums ${corTexto}`}>
+                                    {produto.qtdEstoque}/{produto.qtdMinima}
+                                </span>
+                                </div>
+                            </div>
+                            );
+                        })}
                         </CardContent>
                         <CardFooter className="background-sidebar">
                             <Button variant="outline" className="w-full background-sidebar cursor-pointer hover:border-orange-500 hover:text-orange-500 group"><span className=" group-hover:text-orange-500 ">Registrar Movimentacao</span></Button>

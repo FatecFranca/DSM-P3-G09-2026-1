@@ -1,51 +1,65 @@
 import { PrismaClient } from '@prisma/client'
-import { registrarEntrada } from '../services/movimentacaoService.js';
+import { registrarEntrada } from '../services/movimentacaoService.js'
+
 const prisma = new PrismaClient()
 
-export const retrieveAll = async (req,res) =>{
-    try{
-        const movimentacao= await prisma.movimentacao.findMany({
+export const retrieveAll = async (req,res) => {
+  try{
+    const movimentacao = await prisma.movimentacao.findMany({
+      where:{usuarioId:req.usuario.id},
       include:{produto:true,itemPedido:true}
-    });
-        res.json(movimentacao)
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error:error.message})
+    })
+
+    res.json(movimentacao)
+
+  }catch(error){
+    console.error(error)
+    res.status(500).json({error:error.message})
+  }
+}
+
+export const create = async (req,res) => {
+  try{
+    const {quantidade,justificativa,produtoId} = req.body
+
+    await prisma.$transaction(async (tx) => {
+      await registrarEntrada(
+        tx,
+        produtoId,
+        quantidade,
+        justificativa,
+        req.usuario.id
+      )
+    })
+
+    res.json({message:"Movimentação registrada com sucesso!"})
+
+  }catch(error){
+    console.error(error)
+    res.status(500).json({error:error.message})
+  }
+}
+
+export const retrieveOne = async (req,res) => {
+  try{
+    const {id} = req.params
+
+    if(!id){
+      return res.status(400).json({erro:"O id da movimentacao é obrigatório!"})
     }
-};
- export const create = async (req,res )=>{
 
-    try{
-        const {quantidade,justificativa,produtoId}=req.body;
+    const movimentacao = await prisma.movimentacao.findFirst({
+      where:{
+        id,
+        usuarioId:req.usuario.id
+      },
+      include:{produto:true,itemPedido:true}
+    })
 
-        await prisma.$transaction(async (tx) => {
-            await registrarEntrada(
-                tx,
-                produtoId,
-                quantidade,
-                justificativa)
-        }
-    )
-        res.json({message:"Movimentação registrada com sucesso!"})
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error: error.message})
-    }
+    res.json(movimentacao)
 
- }
- export const retrieveOne = async (req,res)=>{
-    try{
-       const {id}= req.params;
-
-       if(!id){
-        return res.status(400).json({ erro: "O id da movimentacao é obrigatório!" });
-       }
-
-        const movimentacao = await prisma.movimentacao.findUnique({where:{id:id},include:{produto:true,itemPedido:true}})
-        res.json(movimentacao)
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error: error.message})
-    }
- }
- 
+  }catch(error){
+    console.error(error)
+    res.status(500).json({error:error.message})
+  }
+}

@@ -3,9 +3,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-
 import logo from "@/assets/autoStockLogo.png"
-
+import BotaoLogout from "@/components/ui/buttonLogOut"
 import {
   LayoutDashboard,
   Box,
@@ -64,9 +63,9 @@ export function AppSidebar() {
   const pathname = usePathname()
 
   return (
-    <Sidebar className="border-r border-zinc-600">
+    <Sidebar className="border-r border-zinc-600 flex">
 
-      <SidebarContent className="background-sidebar">
+      <SidebarContent className="background-sidebar flex">
 
         <SidebarGroup>
 
@@ -134,7 +133,7 @@ export function AppSidebar() {
                         </Link>
 
                       </SidebarMenuButton>
-
+                            
                     </SidebarMenuItem>
                   )
                 })}
@@ -142,11 +141,11 @@ export function AppSidebar() {
               </div>
 
             </SidebarMenu>
-
           </SidebarGroupContent>
-
         </SidebarGroup>
-
+        <div className="mt-auto mb-2">
+        <BotaoLogout/>
+        </div>
       </SidebarContent>
 
     </Sidebar>

@@ -92,7 +92,8 @@ res.status(200).json({
   usuario: {
     id: usuario.id,
     nome: usuario.nome,
-    email: usuario.email
+    email: usuario.email,
+    admin: usuario.admin
   }
 })
 

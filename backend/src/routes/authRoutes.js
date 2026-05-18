@@ -8,7 +8,7 @@ import { adminMiddleware } from "../middlewares/adminMiddleware.js"
 
 const router = Router()
 
-router.post("/register", register)
+router.post("/register",adminMiddleware, register)
 router.post("/login", login)
 
 export default router

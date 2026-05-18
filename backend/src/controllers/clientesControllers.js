@@ -5,6 +5,9 @@ const prisma = new PrismaClient();
 export const retrieveAll = async (req,res) =>{
     try{
         const cliente= await prisma.cliente.findMany({
+            where:{
+                usuarioId:req.usuario.id
+            },
       include:{pedidos:true}
     });
         res.json(cliente)
@@ -22,9 +25,15 @@ export const update = async (req,res) =>{
         return res.status(400).json({ erro: "O id do cliente é obrigatório!" });
     }
     
-        const consulta= await prisma.cliente.findFirst({where:{cnpj:cnpj,NOT: {id}}});
+        const consulta= await prisma.cliente.findFirst({where:{cpfCnpj:cpfCnpj,usuarioId:req.usuario.id,NOT: {id}}});
         if (consulta){ //Se ja tiver alguem com o mesmo cnpj ou cpf
             return res.status(400).json({ erro: "Ja existe um cliente com este cpf/cnpj"})
+        }
+
+        const clienteExiste = await prisma.cliente.findFirst({where: {id,usuarioId: req.usuario.id}})
+
+        if (!clienteExiste) {
+            return res.status(404).json({error: "Cliente não encontrado"})
         }
 
         const cliente = await prisma.cliente.update({
@@ -44,7 +53,7 @@ export const update = async (req,res) =>{
     try{
         const {cnpj,nomeRazaoSocial,cpfCnpj,email,dataCadastro,logradouro, numImovel,complemento,bairro,municipio,uf,cep,celular1,celular2}=req.body;
 
-        const consulta= await prisma.cliente.findUnique({where:{cpfCnpj:cpfCnpj}});
+        const consulta= await prisma.cliente.findFirst({where:{cpfCnpj:cpfCnpj,usuarioId:req.usuario.id}});
         if (consulta){ //Se ja tiver alguem com o mesmo cnpj ou cpf
             return res.status(400).json({ erro: "Ja existe um cliente com este cpf/cnpj"})
         }
@@ -64,7 +73,9 @@ export const update = async (req,res) =>{
                 uf:uf,
                 cep:cep,
                 celular1:celular1,
-                celular2:celular2
+                celular2:celular2,
+
+                usuarioId: req.usuario.id
             }
         })
         res.json(cliente)
@@ -82,7 +93,7 @@ export const update = async (req,res) =>{
         return res.status(400).json({ erro: "O id do cliente é obrigatório!" });
     }
         
-        const cliente = await prisma.cliente.findUnique({where:{id:id},include:{pedidos:true}})
+        const cliente = await prisma.cliente.findFirst({where:{id:id,usuarioId:req.usuario.id},include:{pedidos:true}})
 
         res.json(cliente)
     }catch(error){
@@ -97,6 +108,11 @@ export const update = async (req,res) =>{
         if(!id){
         return res.status(400).json({ erro: "O id do cliente é obrigatório!" });
     }
+        const clienteExiste = await prisma.cliente.findFirst({where: {id,usuarioId: req.usuario.id}})
+
+        if (!clienteExiste) {
+            return res.status(404).json({error: "Cliente não encontrado"})
+        }
 
         const cliente = await prisma.cliente.delete({where:{id:id}})
 

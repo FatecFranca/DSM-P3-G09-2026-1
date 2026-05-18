@@ -8,6 +8,7 @@ import pedidosRoutes from './routes/pedidosRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import movimentacoesRoutes from './routes/movimentacaoRoutes.js';
 import authRoutes from "./routes/authRoutes.js"
+import adminRoutes from "./routes/adminRoutes.js"
 
 const app = express();
 
@@ -36,5 +37,7 @@ app.use('/dashboard', dashboardRoutes);
 app.use('/movimentacoes', movimentacoesRoutes);
 
 app.use("/auth", authRoutes)
+
+app.use("/admin", adminRoutes)
 
 export default app;

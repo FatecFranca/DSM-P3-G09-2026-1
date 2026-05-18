@@ -1,4 +1,4 @@
-import { api } from "./api"
+import  api  from "./api"
 
 export async function getRecentes() {
   const response = await api.get("/dashboard/recents")
