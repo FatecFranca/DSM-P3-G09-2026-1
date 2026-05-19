@@ -1,4 +1,4 @@
-import { api } from "./api"
+import  api  from "./api"
 
 export async function getProdutos() {
   const response = await api.get("/produtos")
@@ -10,8 +10,17 @@ export async function getProdutoById(id) {
   return response.data
 }
 
-export async function createProduto(data) {
-  const response = await api.post("/produtos", data)
+export async function createProduto(formData) {
+  const response = await api.post(
+    "/produtos",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    }
+  )
+
   return response.data
 }
 
@@ -70,4 +79,4 @@ export async function uploadImagemProduto(
   )
 
   return response.data
-}
+} 
