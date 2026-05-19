@@ -106,3 +106,39 @@ res.status(200).json({
   }
 
 }
+
+export async function getAll(req, res){
+  try {
+    const usuarios = await prisma.usuario.findMany({
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        createdAt: true
+      }
+    })
+
+    res.status(200).json(usuarios)
+
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export async function deleteUsuario(req, res) {
+  try {
+    const { id } = req.params
+
+    await prisma.usuario.delete({
+      where: { id }
+    })
+
+    res.status(204).end()
+
+  } catch (error) {
+    if (error?.code === 'P2025') {
+      return res.status(404).json({ error: "Usuário não encontrado" })
+    }
+    res.status(500).json({ error: error.message })
+  }
+}

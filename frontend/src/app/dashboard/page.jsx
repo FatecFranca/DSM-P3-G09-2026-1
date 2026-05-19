@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button";
 import { Package, ShoppingCart, Users, Building2, TriangleAlert } from "lucide-react"
 import {getPedidosMes,getRecentes,getEstoqueCritico,getProdutosEmEstoque,getTotalClientes,getTotalFornecedores} from "@/services/dashboardService"
 import { useEffect,useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Table,
   TableBody,
@@ -13,6 +14,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 export default function Home(){
+    const router=useRouter()
+
+    function handleClicker(){
+      router.push("/movimentacao")
+    }
+
+
+
 
     const horario = new Date().toLocaleTimeString("pt-BR",
   {
@@ -435,7 +444,7 @@ const [pedidosDia, setPedidosDia] = useState([])
                         })}
                         </CardContent>
                         <CardFooter className="background-sidebar">
-                            <Button variant="outline" className="w-full background-sidebar cursor-pointer hover:border-orange-500 hover:text-orange-500 group"><span className=" group-hover:text-orange-500 ">Registrar Movimentacao</span></Button>
+                            <Button variant="outline" className="w-full background-sidebar cursor-pointer hover:border-orange-500 hover:text-orange-500 group" onClick={handleClicker}><span className=" group-hover:text-orange-500 ">Registrar Movimentacao</span></Button>
                         </CardFooter>
                     </Card>
                 </div>

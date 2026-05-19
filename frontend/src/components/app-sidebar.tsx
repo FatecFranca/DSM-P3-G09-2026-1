@@ -3,15 +3,22 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+
 import logo from "@/assets/autoStockLogo.png"
+
 import BotaoLogout from "@/components/ui/buttonLogOut"
+
+import { isAdmin } from "@/services/authService"
+
 import {
   LayoutDashboard,
   Box,
   Users,
   Building,
   ShoppingBag,
-  ArrowDownUp
+  ArrowDownUp,
+  Shield
 } from "lucide-react"
 
 import {
@@ -25,44 +32,63 @@ import {
   SidebarMenuItem
 } from "@/components/ui/sidebar"
 
-const menuItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard
-  },
-  {
-    title: "Produtos",
-    href: "/produtos",
-    icon: Box
-  },
-  {
-    title: "Clientes",
-    href: "/clientes",
-    icon: Users
-  },
-  {
-    title: "Fornecedores",
-    href: "/fornecedores",
-    icon: Building
-  },
-  {
-    title: "Pedidos",
-    href: "/pedidos",
-    icon: ShoppingBag
-  },
-  {
-    title: "Movimentação",
-    href: "/movimentacao",
-    icon: ArrowDownUp
-  }
-]
-
 export function AppSidebar() {
 
   const pathname = usePathname()
 
+  const [menuItems, setMenuItems] = useState([])
+
+  useEffect(() => {
+
+    const items = [
+      {
+        title: "Dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard
+      },
+      {
+        title: "Produtos",
+        href: "/produtos",
+        icon: Box
+      },
+      {
+        title: "Clientes",
+        href: "/clientes",
+        icon: Users
+      },
+      {
+        title: "Fornecedores",
+        href: "/fornecedores",
+        icon: Building
+      },
+      {
+        title: "Pedidos",
+        href: "/pedidos",
+        icon: ShoppingBag
+      },
+      {
+        title: "Movimentação",
+        href: "/movimentacao",
+        icon: ArrowDownUp
+      }
+    ]
+
+    if(isAdmin()) {
+
+      items.push({
+        title: "Admin",
+        href: "/admin",
+        icon: Shield
+      })
+
+    }
+
+    setMenuItems(items)
+
+  }, [])
+
   return (
+
     <Sidebar className="border-r border-zinc-600 flex">
 
       <SidebarContent className="background-sidebar flex">
@@ -76,6 +102,11 @@ export function AppSidebar() {
               alt="Logo"
               width={160}
               height={40}
+              priority
+              style={{
+                width:"auto",
+                height:"auto"
+              }}
             />
 
           </SidebarGroupLabel>
@@ -96,7 +127,8 @@ export function AppSidebar() {
 
                   const Icon = item.icon
 
-                  const isActive = pathname === item.href
+                  const isActive =
+                    pathname === item.href
 
                   return (
 
@@ -118,8 +150,8 @@ export function AppSidebar() {
 
                             ${
                               isActive
-  ? "border-orange-500 bg-orange-500/15 text-white"
-  : "border-transparent text-zinc-300 hover:bg-orange-500/15 hover:border-orange-500 hover:text-zinc-800 hover:translate-x-1"
+                                ? "border-orange-500 bg-orange-500/15 text-white"
+                                : "border-transparent text-zinc-300 hover:bg-orange-500/15 hover:border-orange-500 hover:text-white hover:translate-x-1"
                             }
                           `}
                         >
@@ -133,19 +165,27 @@ export function AppSidebar() {
                         </Link>
 
                       </SidebarMenuButton>
-                            
+
                     </SidebarMenuItem>
+
                   )
+
                 })}
 
               </div>
 
             </SidebarMenu>
+
           </SidebarGroupContent>
+
         </SidebarGroup>
+
         <div className="mt-auto mb-2">
-        <BotaoLogout/>
+
+          <BotaoLogout />
+
         </div>
+
       </SidebarContent>
 
     </Sidebar>

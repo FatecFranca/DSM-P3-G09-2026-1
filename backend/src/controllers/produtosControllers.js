@@ -6,12 +6,11 @@ export const retrieveAll = async (req,res) => {
   try{
     const produto = await prisma.produto.findMany({
       where:{usuarioId:req.usuario.id},
-      include:{movimentacoes:true,fornecedores:true}
     })
 
     res.json(produto)
 
-  }catch(error){
+  }catch(error){ 
     console.error(error)
     res.status(500).json({error:error.message})
   }
@@ -58,7 +57,13 @@ export const update = async (req,res) => {
 
 export const create = async (req,res) => {
   try{
-    const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdMinima} = req.body
+
+    console.log(req.body)
+    console.log(req.file)
+    console.log(req.usuario)
+
+    const {descricao,marca,detalhes,unidadeMedida} = req.body
+    let imagemUrl =null
 
     const consulta = await prisma.produto.findFirst({
       where:{
@@ -66,9 +71,12 @@ export const create = async (req,res) => {
         usuarioId:req.usuario.id
       }
     })
-
+  
     if(consulta){
       return res.status(400).json({erro:"Ja existe um produto com esta descricao"})
+    }
+    if (req.file) {
+      imagemUrl = req.file.path
     }
 
     const produto = await prisma.produto.create({
@@ -78,13 +86,14 @@ export const create = async (req,res) => {
         imagemUrl,
         detalhes,
         unidadeMedida,
-        precoCusto,
-        precoUnitario,
-        qtdMinima,
+        precoCusto : parseFloat(req.body.precoCusto),
+        precoUnitario : parseFloat(req.body.precoUnitario),
+        qtdMinima : parseFloat(req.body.qtdMinima),
         usuarioId:req.usuario.id
       }
     })
-
+    console.log("BODY:", req.body)
+console.log("FILE:", req.file)
     res.json(produto)
 
   }catch(error){
@@ -212,35 +221,6 @@ export const removeFornecedor = async (req,res) => {
       return res.status(404).end()
     }
 
-    res.status(500).json({error:error.message})
-  }
-}
-
-export const uploadImagem = async (req,res) => {
-  try{
-    const {id} = req.params
-
-    if(!req.file){
-      return res.status(400).json({erro:"Imagem obrigatória"})
-    }
-
-    const produtoExiste = await prisma.produto.findFirst({
-      where:{id,usuarioId:req.usuario.id}
-    })
-
-    if(!produtoExiste){
-      return res.status(404).json({error:"Produto não encontrado"})
-    }
-
-    const produto = await prisma.produto.update({
-      where:{id},
-      data:{imagemUrl:req.file.path}
-    })
-
-    res.json(produto)
-
-  }catch(error){
-    console.error(error)
     res.status(500).json({error:error.message})
   }
 }

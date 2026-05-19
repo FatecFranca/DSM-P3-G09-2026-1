@@ -1,4 +1,4 @@
-import { api } from "./api"
+import  api  from "./api"
 
 export async function getPedidos() {
   const response = await api.get("/pedidos")

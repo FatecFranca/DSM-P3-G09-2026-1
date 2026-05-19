@@ -101,7 +101,7 @@ export const fornecedores = async (req, res) => {
 
 export const pedidosMes = async (req, res) => {
   try {
-
+    console.log(req.usuario)
     const inicioMes = new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
@@ -113,8 +113,8 @@ export const pedidosMes = async (req, res) => {
       new Date().getMonth() + 1,
       1
     )
-
-    const pedidosDoMes = await prisma.pedido.findMany({
+    
+    const pedidosDoMes = await prisma.pedido.count({
       where: {
         usuarioId: req.usuario.id,
         createdAt: {
@@ -123,7 +123,7 @@ export const pedidosMes = async (req, res) => {
         }
       }
     })
-
+    
     res.json(pedidosDoMes)
 
   } catch (error) {

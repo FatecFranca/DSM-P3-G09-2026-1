@@ -79,3 +79,13 @@ export function isAdmin() {
 
   return usuario?.admin
 }
+
+export async function getAllUsuarios() {
+  const response = await api.get("/auth/usuarios")
+  return response.data
+}
+
+export async function deleteUsuario(id) {
+  const response = await api.delete(`/auth/usuarios/${id}`)
+  return response.data
+}

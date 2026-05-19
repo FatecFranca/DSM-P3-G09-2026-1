@@ -27,29 +27,26 @@ import { Button } from "./ui/button"
 
 export function LoginSidebar() {
 
-  const [showPassword,setShowPassword] = useState(false)
-  const [email,setEmail] = useState("")
-  const [senha,setSenha] = useState("")
-  const [error,setError] = useState("")
-  const [open,setOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [senha, setSenha] = useState("")
+  const [error, setError] = useState("")
+  const [open, setOpen] = useState(false)
 
   const router = useRouter()
 
   async function handleLogin() {
-
     try {
-
-      await login(email,senha)
-
+      await login(email, senha)
       router.push("/dashboard")
-
     } catch (error) {
-
       setError("E-mail ou senha inválidos")
     }
   }
 
-  const LoginContent = () => (
+  // ✅ JSX extraído para uma constante — sem ser um componente interno.
+  // Assim o React não desmonta/remonta os inputs a cada digitação.
+  const loginContent = (
     <>
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center h-16 pt-2" />
@@ -248,7 +245,7 @@ export function LoginSidebar() {
                 "
               >
                 ENTRAR
-                <ArrowRight className="w-4 h-4"/>
+                <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
 
@@ -286,7 +283,7 @@ export function LoginSidebar() {
           shadow-lg
         "
       >
-        <Menu className="w-5 h-5"/>
+        <Menu className="w-5 h-5" />
       </button>
 
       {/* DESKTOP */}
@@ -300,7 +297,7 @@ export function LoginSidebar() {
           "
         >
           <SidebarContent className="background-sidebar">
-            <LoginContent/>
+            {loginContent}
           </SidebarContent>
         </Sidebar>
       </div>
@@ -329,12 +326,12 @@ export function LoginSidebar() {
                   rounded-lg
                 "
               >
-                <X className="w-5 h-5"/>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="h-full overflow-y-auto pb-20">
-              <LoginContent/>
+              {loginContent}
             </div>
           </div>
         )
