@@ -137,8 +137,8 @@ export default  function ProdutosPage(){
                         formData.append("descricao", descricao)
                         formData.append("marca", marca)
                         formData.append("unidadeMedida", unidade)
-                        formData.append("precoCusto", precoCusto)
-                        formData.append("precoUnitario", precoUnitario)
+                        formData.append("precoCusto", precoCusto.replace(",","."))
+                        formData.append("precoUnitario", precoUnitario.replace(",","."))
                         formData.append("qtdMinima", qtdMinima)
                         await createProduto(formData)  
                         await carregarProdutos()}}>
@@ -171,7 +171,7 @@ export default  function ProdutosPage(){
           <TableRow className="bg-zinc-900">
             <TableHead className="text-white pl-4">Imagem</TableHead>
             <TableHead className="text-white ">PRODUTO / MARCA</TableHead>
-            <TableHead className="text-white ">UNID</TableHead>
+            <TableHead className="text-white ">UNIDADE</TableHead>
             <TableHead className="text-white ">PREÇO CUSTO</TableHead>
             <TableHead className="text-white ">PREÇO UNIT.</TableHead>
             <TableHead className="text-white ">QTD. ESTOQUE</TableHead>
