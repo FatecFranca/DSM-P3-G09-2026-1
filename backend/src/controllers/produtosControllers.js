@@ -19,7 +19,8 @@ export const retrieveAll = async (req,res) => {
 export const update = async (req,res) => {
   try{
     const {id} = req.params
-    const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdMinima} = req.body
+    const {descricao,marca,detalhes} = req.body
+    let imagemUrl =null
 
     if(!id){
       return res.status(400).json({erro:"O id do produto é obrigatório!"})
@@ -32,6 +33,9 @@ export const update = async (req,res) => {
     if(!produtoExiste){
       return res.status(404).json({error:"Produto não encontrado"})
     }
+    if (req.file) {
+      imagemUrl = req.file.path
+    }
 
     const produto = await prisma.produto.update({
       where:{id},
@@ -40,10 +44,9 @@ export const update = async (req,res) => {
         marca,
         imagemUrl,
         detalhes,
-        unidadeMedida,
-        precoCusto,
-        precoUnitario,
-        qtdMinima
+        precoCusto : parseFloat(req.body.precoCusto),
+        precoUnitario : parseFloat(req.body.precoUnitario),
+        qtdMinima : parseFloat(req.body.qtdMinima),
       }
     })
 
@@ -62,7 +65,7 @@ export const create = async (req,res) => {
     console.log(req.file)
     console.log(req.usuario)
 
-    const {descricao,marca,detalhes,unidadeMedida} = req.body
+    const {descricao,marca,detalhes} = req.body
     let imagemUrl =null
 
     const consulta = await prisma.produto.findFirst({
@@ -85,7 +88,6 @@ export const create = async (req,res) => {
         marca,
         imagemUrl,
         detalhes,
-        unidadeMedida,
         precoCusto : parseFloat(req.body.precoCusto),
         precoUnitario : parseFloat(req.body.precoUnitario),
         qtdMinima : parseFloat(req.body.qtdMinima),

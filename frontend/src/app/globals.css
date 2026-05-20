@@ -49,6 +49,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+
+
 :root {
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -154,3 +156,15 @@
 
   background-size: 60px 60px;
 }
+
+* {
+  scrollbar-width: thin;               /* Firefox */
+  scrollbar-color: #f97316 transparent; /* Firefox */
+}
+
+*::-webkit-scrollbar { width: 4px; }
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f97316, #c2410c);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-track { background: transparent; }

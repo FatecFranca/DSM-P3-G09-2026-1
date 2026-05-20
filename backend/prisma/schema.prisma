@@ -84,7 +84,6 @@ model Produto {
   marca             String
   imagemUrl         String?
   detalhes          String?
-  unidadeMedida     String
   precoCusto        Float
   precoUnitario     Float
   qtdEstoque        Int                  @default(0)

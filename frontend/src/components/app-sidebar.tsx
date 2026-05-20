@@ -89,9 +89,9 @@ export function AppSidebar() {
 
   return (
 
-    <Sidebar className="border-r border-zinc-600 flex">
+    <Sidebar className="border-r border-zinc-600 flex overflow-x-hidden">
 
-      <SidebarContent className="background-sidebar flex">
+      <SidebarContent className="background-sidebar flex overflow-x-hidden">
 
         <SidebarGroup>
 
