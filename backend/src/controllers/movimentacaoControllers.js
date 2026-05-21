@@ -3,25 +3,23 @@ import { registrarEntrada } from '../services/movimentacaoService.js'
 
 const prisma = new PrismaClient()
 
-export const retrieveAll = async (req,res) => {
-  try{
+export const retrieveAll = async (req, res) => {
+  try {
     const movimentacao = await prisma.movimentacao.findMany({
-      where:{usuarioId:req.usuario.id},
-      include:{produto:true,itemPedido:true}
+      where: { usuarioId: req.usuario.id },
+      include: { produto: true, itemPedido: true }
     })
-
     res.json(movimentacao)
-
-  }catch(error){
+  } catch (error) {
     console.error(error)
-    res.status(500).json({error:error.message})
+    res.status(500).json({ error: error.message })
   }
 }
 
-export const create = async (req,res) => {
-  try{
-    const {quantidade,justificativa,produtoId} = req.body
-
+export const create = async (req, res) => {
+  try {
+    const { quantidade, justificativa, produtoId } = req.body
+    // transacao atomica para registrar entrada de produtos
     await prisma.$transaction(async (tx) => {
       await registrarEntrada(
         tx,
@@ -31,35 +29,29 @@ export const create = async (req,res) => {
         req.usuario.id
       )
     })
-
-    res.json({message:"Movimentação registrada com sucesso!"})
-
-  }catch(error){
+    res.json({ message: "Movimentação registrada com sucesso!" })
+  } catch (error) {
     console.error(error)
-    res.status(500).json({error:error.message})
+    res.status(500).json({ error: error.message })
   }
 }
 
-export const retrieveOne = async (req,res) => {
-  try{
-    const {id} = req.params
-
-    if(!id){
-      return res.status(400).json({erro:"O id da movimentacao é obrigatório!"})
+export const retrieveOne = async (req, res) => {
+  try {
+    const { id } = req.params
+    if (!id) {
+      return res.status(400).json({ erro: "O id da movimentacao é obrigatório!" })
     }
-
     const movimentacao = await prisma.movimentacao.findFirst({
-      where:{
+      where: {
         id,
-        usuarioId:req.usuario.id
+        usuarioId: req.usuario.id
       },
-      include:{produto:true,itemPedido:true}
+      include: { produto: true, itemPedido: true }
     })
-
     res.json(movimentacao)
-
-  }catch(error){
+  } catch (error) {
     console.error(error)
-    res.status(500).json({error:error.message})
+    res.status(500).json({ error: error.message })
   }
 }

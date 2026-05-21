@@ -4,7 +4,6 @@ const prisma = new PrismaClient()
 
 export const recents = async (req, res) => {
   try {
-
     const dashboard = await prisma.pedido.findMany({
       where: {
         usuarioId: req.usuario.id,
@@ -18,9 +17,7 @@ export const recents = async (req, res) => {
         cliente:true
       }
     })
-
     res.json(dashboard)
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -29,19 +26,15 @@ export const recents = async (req, res) => {
 
 export const estoqueCritico = async (req, res) => {
   try {
-
     const produtos = await prisma.produto.findMany({
       where: {
         usuarioId: req.usuario.id
       }
     })
-
     const dashboard = produtos.filter(
       produto => produto.qtdEstoque < produto.qtdMinima
     )
-
     res.json(dashboard)
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -50,15 +43,12 @@ export const estoqueCritico = async (req, res) => {
 
 export const produtoEmEstoque = async (req, res) => {
   try {
-
     const produtos = await prisma.produto.count({
       where: {
         usuarioId: req.usuario.id
       }
     })
-
     res.json(produtos)
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -67,15 +57,12 @@ export const produtoEmEstoque = async (req, res) => {
 
 export const clientes = async (req, res) => {
   try {
-
     const clientes = await prisma.cliente.count({
       where: {
         usuarioId: req.usuario.id
       }
     })
-
     res.json(clientes)
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -84,15 +71,12 @@ export const clientes = async (req, res) => {
 
 export const fornecedores = async (req, res) => {
   try {
-
     const fornecedores = await prisma.fornecedor.count({
       where: {
         usuarioId: req.usuario.id
       }
     })
-
     res.json(fornecedores)
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -102,18 +86,8 @@ export const fornecedores = async (req, res) => {
 export const pedidosMes = async (req, res) => {
   try {
     console.log(req.usuario)
-    const inicioMes = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    )
-
-    const fimMes = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      1
-    )
-    
+    const inicioMes = new Date(new Date().getFullYear(),new Date().getMonth(),1)
+    const fimMes = new Date(new Date().getFullYear(),new Date().getMonth() + 1,1)
     const pedidosDoMes = await prisma.pedido.count({
       where: {
         usuarioId: req.usuario.id,
@@ -123,9 +97,7 @@ export const pedidosMes = async (req, res) => {
         }
       }
     })
-    
     res.json(pedidosDoMes)
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -134,16 +106,12 @@ export const pedidosMes = async (req, res) => {
 
 export const getPedidosDia = async (req, res) => {
   try {
-    const { date } = req.query;
-
-    const baseDate = date ? new Date(date) : new Date();
-
-    const start = new Date(baseDate);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(baseDate);
-    end.setHours(23, 59, 59, 999);
-
+    const { date } = req.query
+    const baseDate = date ? new Date(date) : new Date()
+    const start = new Date(baseDate)
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(baseDate)
+    end.setHours(23, 59, 59, 999)
     const pedidos = await prisma.pedido.findMany({
       where: {
         createdAt: {
@@ -154,26 +122,21 @@ export const getPedidosDia = async (req, res) => {
       include: {
         cliente: true,
       },
-    });
-
-    return res.json(pedidos);
+    })
+    return res.json(pedidos)
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao buscar pedidos" });
+    return res.status(500).json({ error: "Erro ao buscar pedidos" })
   }
 };
 
 export const getFornecedoresDia = async (req, res) => {
   try {
     const { date } = req.query;
-
-    const baseDate = date ? new Date(date) : new Date();
-
-    const start = new Date(baseDate);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(baseDate);
-    end.setHours(23, 59, 59, 999);
-
+    const baseDate = date ? new Date(date) : new Date()
+    const start = new Date(baseDate)
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(baseDate)
+    end.setHours(23, 59, 59, 999)
     const fornecedores = await prisma.fornecedor.findMany({
       where: {
         createdAt: {
@@ -181,25 +144,21 @@ export const getFornecedoresDia = async (req, res) => {
           lte: end,
         },
       },
-    });
-
-    return res.json(fornecedores);
+    })
+    return res.json(fornecedores)
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao buscar fornecedores" });
+    return res.status(500).json({ error: "Erro ao buscar fornecedores" })
   }
 };
+
 export const getClienteDia = async (req, res) => {
   try {
-    const { date } = req.query;
-
-    const baseDate = date ? new Date(date) : new Date();
-
-    const start = new Date(baseDate);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(baseDate);
-    end.setHours(23, 59, 59, 999);
-
+    const { date } = req.query
+    const baseDate = date ? new Date(date) : new Date()
+    const start = new Date(baseDate)
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(baseDate)
+    end.setHours(23, 59, 59, 999)
     const clientes = await prisma.cliente.findMany({
       where: {
         createdAt: {
@@ -207,25 +166,21 @@ export const getClienteDia = async (req, res) => {
           lte: end,
         },
       },
-    });
-
-    return res.json(clientes);
+    })
+    return res.json(clientes)
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao buscar clientes" });
+    return res.status(500).json({ error: "Erro ao buscar clientes" })
   }
 };
+
 export const getProdutoDia = async (req, res) => {
   try {
-    const { date } = req.query;
-
-    const baseDate = date ? new Date(date) : new Date();
-
-    const start = new Date(baseDate);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(baseDate);
-    end.setHours(23, 59, 59, 999);
-
+    const { date } = req.query
+    const baseDate = date ? new Date(date) : new Date()
+    const start = new Date(baseDate)
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(baseDate)
+    end.setHours(23, 59, 59, 999)
     const produtos = await prisma.produto.findMany({
       where: {
         createdAt: {
@@ -233,10 +188,9 @@ export const getProdutoDia = async (req, res) => {
           lte: end,
         },
       },
-    });
-
-    return res.json(produtos);
+    })
+    return res.json(produtos)
   } catch (error) {
-    return res.status(500).json({ error: "Erro ao buscar produtos" });
+    return res.status(500).json({ error: "Erro ao buscar produtos" })
   }
 };

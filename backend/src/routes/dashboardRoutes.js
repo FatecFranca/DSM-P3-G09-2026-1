@@ -10,7 +10,7 @@ router.get('/produto-em-estoque',authMiddleware,dashboardControllers.produtoEmEs
 router.get('/clientes',authMiddleware,dashboardControllers.clientes);
 router.get('/fornecedores',authMiddleware,dashboardControllers.fornecedores);
 router.get('/pedidos-mes',authMiddleware,dashboardControllers.pedidosMes);
-
+//api para cards do dashboard
 router.get("/pedidos-dia",authMiddleware, dashboardControllers.getPedidosDia);
 router.get("/clientes-dia", authMiddleware,dashboardControllers.getClienteDia);
 router.get("/fornecedores-dia",authMiddleware, dashboardControllers.getFornecedoresDia);
