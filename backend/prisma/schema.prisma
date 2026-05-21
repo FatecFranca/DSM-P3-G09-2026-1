@@ -113,6 +113,7 @@ model Fornecedor {
   cep                 String
   telefone1           String
   telefone2           String?
+  categoria           String?
   createdAt           DateTime              @default(now())
 
   usuarioId           String                @db.ObjectId

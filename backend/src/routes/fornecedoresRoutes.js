@@ -4,6 +4,7 @@ import {authMiddleware} from "../middlewares/authMiddleware.js"
 
 const router = Router();
 
+router.get("/hoje",authMiddleware, fornecedoresControllers.getDia)
 router.get('/',authMiddleware,fornecedoresControllers.retrieveAll);
 router.post('/',authMiddleware,fornecedoresControllers.create);
 router.get('/:id',authMiddleware,fornecedoresControllers.retrieveOne);

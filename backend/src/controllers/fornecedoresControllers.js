@@ -6,7 +6,7 @@ export const retrieveAll = async (req,res) => {
   try{
     const fornecedor = await prisma.fornecedor.findMany({
       where:{usuarioId:req.usuario.id},
-      include:{produtos:true}
+      include:{_count:{select:{produtos:true}}}
     })
 
     res.json(fornecedor)
@@ -19,7 +19,7 @@ export const retrieveAll = async (req,res) => {
 export const update = async (req,res) => {
   try{
     const {id} = req.params
-    const {razaoSocial,nomeFantasia,cnpj,email,logradouro,numImovel,complemento,bairro,municipio,uf,cep,telefone1,telefone2} = req.body
+    const {razaoSocial,nomeFantasia,cnpj,email,logradouro,numImovel,complemento,bairro,municipio,uf,cep,telefone1,telefone2,categoria} = req.body
 
     if(!id){
       return res.status(400).json({erro:"O id do fornecedor é obrigatório!"})
@@ -60,7 +60,8 @@ export const update = async (req,res) => {
         uf,
         cep,
         telefone1,
-        telefone2
+        telefone2,
+        categoria
       }
     })
 
@@ -74,7 +75,7 @@ export const update = async (req,res) => {
 
 export const create = async (req,res) => {
   try{
-    const {razaoSocial,nomeFantasia,cnpj,email,logradouro,numImovel,complemento,bairro,municipio,uf,cep,telefone1,telefone2} = req.body
+    const {razaoSocial,nomeFantasia,cnpj,email,logradouro,numImovel,complemento,bairro,municipio,uf,cep,telefone1,telefone2,categoria} = req.body
 
     const consulta = await prisma.fornecedor.findFirst({
       where:{
@@ -102,6 +103,7 @@ export const create = async (req,res) => {
         cep,
         telefone1,
         telefone2,
+        categoria,
         usuarioId:req.usuario.id
       }
     })
@@ -175,3 +177,28 @@ export const deleteFornecedor = async (req,res) => {
     }
   }
 }
+
+export const getDia = async (req, res) => {
+  try {
+    const hoje = new Date();
+
+    // Início e fim do dia no horário local do servidor
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
+    const fim    = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59);
+
+    const fornecedores = await prisma.fornecedor.findMany({
+      where: {
+        createdAt: {
+          gte: inicio,
+          lte: fim,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(fornecedores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: error.message });
+  }
+};

@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 export const retrieveAll = async (req,res) => {
   try{
     const produto = await prisma.produto.findMany({
-      where:{usuarioId:req.usuario.id},
+      where:{usuarioId:req.usuario.id},include:{fornecedores:{include:{fornecedor:true}}}
     })
 
     res.json(produto)
@@ -20,7 +20,7 @@ export const update = async (req,res) => {
   try{
     const {id} = req.params
     const {descricao,marca,detalhes} = req.body
-    let imagemUrl =null
+   
 
     if(!id){
       return res.status(400).json({erro:"O id do produto é obrigatório!"})
@@ -29,7 +29,7 @@ export const update = async (req,res) => {
     const produtoExiste = await prisma.produto.findFirst({
       where:{id,usuarioId:req.usuario.id}
     })
-
+     let imagemUrl =produtoExiste.imagemUrl
     if(!produtoExiste){
       return res.status(404).json({error:"Produto não encontrado"})
     }
@@ -37,7 +37,7 @@ export const update = async (req,res) => {
       imagemUrl = req.file.path
     }
 
-    const produto = await prisma.produto.update({
+    const produto = await prisma.produto.update({ 
       where:{id},
       data:{
         descricao,
@@ -116,7 +116,7 @@ export const retrieveOne = async (req,res) => {
       where:{
         id,
         usuarioId:req.usuario.id
-      }
+      },include:{fornecedores:{include:{fornecedor:true}}}
     })
 
     res.json(produto)
@@ -226,3 +226,27 @@ export const removeFornecedor = async (req,res) => {
     res.status(500).json({error:error.message})
   }
 }
+export const getDia = async (req, res) => {
+  try {
+    const hoje = new Date();
+
+    // Início e fim do dia no horário local do servidor
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
+    const fim    = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59);
+
+    const produtos = await prisma.produto.findMany({
+      where: {usuarioId:req.usuario.id,
+        createdAt: {
+          gte: inicio,
+          lte: fim,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(produtos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: error.message });
+  }
+};

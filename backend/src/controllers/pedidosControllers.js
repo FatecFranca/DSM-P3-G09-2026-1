@@ -355,3 +355,27 @@ export const updateItemPedido = async (req,res) => {
     })
   }
 }
+export const getDia = async (req, res) => {
+  try {
+    const hoje = new Date();
+
+    // Início e fim do dia no horário local do servidor
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
+    const fim    = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59);
+
+    const pedidos = await prisma.pedido.findMany({
+      where: {
+        createdAt: {
+          gte: inicio,
+          lte: fim,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.json(pedidos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: error.message });
+  }
+};

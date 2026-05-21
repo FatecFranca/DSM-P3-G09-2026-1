@@ -5,6 +5,7 @@ import {authMiddleware} from "../middlewares/authMiddleware.js"
 
 const router = Router();
 
+router.get("/hoje",authMiddleware, produtoControllers.getDia)
 router.get('/',authMiddleware,produtoControllers.retrieveAll);
 router.post('/',authMiddleware,upload.single('imagem'),produtoControllers.create);
 router.get('/:id',authMiddleware,produtoControllers.retrieveOne);
