@@ -20,7 +20,6 @@ export async function createProduto(formData) {
       }
     }
   )
-
   return response.data
 }
 
@@ -34,40 +33,26 @@ export async function deleteProduto(id) {
   return response.data
 }
 
-export async function addFornecedorProduto(
-  produtoId,
-  fornecedorId
-) {
+export async function addFornecedorProduto(produtoId,fornecedorId) {
   const response = await api.post(
     `/produtos/${produtoId}/fornecedor`,
     {
       fornecedorId
     }
   )
-
   return response.data
 }
 
-export async function removeFornecedorProduto(
-  produtoId,
-  fornecedorId
-) {
+export async function removeFornecedorProduto(produtoId,fornecedorId) {
   const response = await api.delete(
     `/produtos/${produtoId}/fornecedor/${fornecedorId}`
   )
-
   return response.data
 }
 
-export async function uploadImagemProduto(
-  produtoId,
-  imagem
-) {
-
+export async function uploadImagemProduto(produtoId,imagem) {
   const formData = new FormData()
-
   formData.append("imagem", imagem)
-
   const response = await api.post(
     `/produtos/${produtoId}/imagem`,
     formData,
@@ -77,6 +62,5 @@ export async function uploadImagemProduto(
       }
     }
   )
-
   return response.data
 } 

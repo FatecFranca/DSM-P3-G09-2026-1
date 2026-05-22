@@ -42,7 +42,6 @@ export default function RootLayout({
         ${rajdhani.variable}
       `}
     >
-
       <body
         className={`
           ${inter.className}
@@ -50,15 +49,10 @@ export default function RootLayout({
           antialiased
         `}
       >
-
         <LayoutWrapper>
-
           {children}
-
         </LayoutWrapper>
-
       </body>
-
     </html>
   );
 }

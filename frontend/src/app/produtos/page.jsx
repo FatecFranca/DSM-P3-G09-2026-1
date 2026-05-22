@@ -2,19 +2,30 @@
 import { Card, CardTitle, } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getProdutos, deleteProduto, createProduto, updateProduto, getProdutoById, addFornecedorProduto, removeFornecedorProduto } from "@/services/produtosService"  // ← adicione removeFornecedorProduto
+import { getProdutos, deleteProduto, createProduto, updateProduto, getProdutoById, addFornecedorProduto, removeFornecedorProduto } from "@/services/produtosService"
 import { getFornecedores } from "@/services/fornecedoresService"
 import { useEffect, useState } from "react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, } from "@/components/ui/alert-dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
-import { Trash2, FilePenLine, X, Eye } from 'lucide-react';  // ← adicione X e Eye
+import { Trash2, FilePenLine, X, Eye } from 'lucide-react';
+
+function InfoBox({ label, value }) {
+  return (
+    <div className="bg-zinc-800 rounded-lg px-4 py-3">
+      <span className="text-zinc-500 text-xs uppercase tracking-wider">{label}</span>
+      <p className="text-white mt-1 break-words text-sm">
+        {value ?? <span className="text-zinc-600 italic">Não informado</span>}
+      </p>
+    </div>
+  )
+}
 
 export default function ProdutosPage() {
 
   const [openEditar, setOpenEditar] = useState(false)
   const [openCriar, setOpenCriar] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
-  const [openVer, setOpenVer] = useState(false)             // ← NOVO
+  const [openVer, setOpenVer] = useState(false)
   const [produtoSelecionado, setProdutoSelecionado] = useState(null)
   const [imagem, setImagem] = useState(null)
   const [descricao, setDescricao] = useState("")
@@ -29,7 +40,31 @@ export default function ProdutosPage() {
   const [tipoMensagem, setTipoMensagem] = useState("")
   const [fornecedores, setFornecedores] = useState([])
   const [fornecedorId, setFornecedorId] = useState("")
-  const [removendoFornecedor, setRemovendoFornecedor] = useState(null)  // ← NOVO: guarda o id do vínculo sendo removido
+  const [removendoFornecedor, setRemovendoFornecedor] = useState(null)
+
+  async function handleRemoverFornecedor(produtoId, fornecedorId) {
+    setRemovendoFornecedor(fornecedorId)
+    try {
+      await removeFornecedorProduto(produtoId, fornecedorId)
+      setProdutoSelecionado(prev => ({
+        ...prev,
+        fornecedores: prev.fornecedores.filter(
+          v => v.fornecedor.id !== fornecedorId
+        )
+      }))
+      await carregarProdutos()
+      setMensagem("Fornecedor removido com sucesso!")
+      setTipoMensagem("sucesso")
+      setTimeout(() => setMensagem(""), 3000)
+    } catch (error) {
+      setMensagem("Erro ao remover fornecedor!")
+      setTipoMensagem("erro")
+      setTimeout(() => setMensagem(""), 3000)
+      console.error(error)
+    } finally {
+      setRemovendoFornecedor(null)
+    }
+  }
 
   async function carregarProdutos() {
     try {
@@ -98,7 +133,6 @@ export default function ProdutosPage() {
     }
   }
 
-  // ── NOVO: abre o modal de visualização ──────────────────────────────────────
   async function abrirVer(id) {
     try {
       const produto = await getProdutoById(id)
@@ -108,48 +142,14 @@ export default function ProdutosPage() {
     }
   }
 
-  // ── NOVO: remove um fornecedor do produto e recarrega os dados ──────────────
-  async function handleRemoverFornecedor(produtoId, fornecedorId) {
-    setRemovendoFornecedor(fornecedorId)
-    try {
-      await removeFornecedorProduto(produtoId, fornecedorId)
-
-      // Atualiza o produtoSelecionado localmente para remover o vínculo da lista
-      // sem precisar fechar e reabrir o modal
-      setProdutoSelecionado(prev => ({
-        ...prev,
-        fornecedores: prev.fornecedores.filter(
-          v => v.fornecedor.id !== fornecedorId
-        )
-      }))
-
-      // Atualiza a tabela principal em background
-      await carregarProdutos()
-
-      setMensagem("Fornecedor removido com sucesso!")
-      setTipoMensagem("sucesso")
-      setTimeout(() => setMensagem(""), 3000)
-
-    } catch (error) {
-      setMensagem("Erro ao remover fornecedor!")
-      setTipoMensagem("erro")
-      setTimeout(() => setMensagem(""), 3000)
-      console.error(error)
-    } finally {
-      setRemovendoFornecedor(null)
-    }
-  }
-
   return (
     <div className="flex flex-col w-full">
-
       {mensagem && (
         <div className={`fixed top-5 right-5 px-4 py-3 rounded-lg text-white font-medium shadow-lg z-50 transition-all duration-300
           ${tipoMensagem === "sucesso" ? "bg-green-500" : "bg-red-500"}`}>
           {mensagem}
         </div>
       )}
-
       <div className="flex flex-col px-4 md:px-8 lg:px-13">
         <div>
           <h3 className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">catálogo</h3>
@@ -164,14 +164,12 @@ export default function ProdutosPage() {
           </Button>
         </div>
       </div>
-
       <div className="flex flex-col md:flex-row px-4 md:px-8 lg:px-13 pt-6 gap-3">
         <Input placeholder="Pesquisar produto..." className="w-full md:flex-1 p-5 background-sidebar border border-zinc-600 text-white hover:border-orange-500" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} />
         <Button className="w-full md:w-auto px-6 p-5 cursor-pointer background-sidebar border-zinc-500 hover:border-orange-500 hover:text-orange-500" onClick={() => setFiltro("todos")}>TODOS</Button>
         <Button className="w-full md:w-auto px-6 p-5 cursor-pointer background-sidebar border-zinc-500 hover:border-orange-500 hover:text-orange-500" onClick={() => setFiltro("critico")}>CRITICO</Button>
         <Button className="w-full md:w-auto px-6 p-5 cursor-pointer background-sidebar border-zinc-500 hover:border-orange-500 hover:text-orange-500" onClick={() => setFiltro("ok")}>OK</Button>
       </div>
-
       <div className="flex flex-wrap gap-4 px-4 md:px-8 lg:px-13 pt-5">
         <div className="flex-3 w-full">
           <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-zinc-500 overflow-hidden">
@@ -216,7 +214,6 @@ export default function ProdutosPage() {
                       <TableCell>{produto.qtdEstoque}</TableCell>
                       <TableCell>{produto.qtdMinima}</TableCell>
                       <TableCell>
-                        {/* ── AÇÕES: adicionado botão Ver (olho) ── */}
                         <div className="flex flex-row md:flex-col gap-2 p-1">
                           <Button
                             variant="outline"
@@ -251,16 +248,11 @@ export default function ProdutosPage() {
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════════════════════════
-          MODAL VER — visualiza detalhes e gerencia fornecedores do produto
-      ════════════════════════════════════════════════════════════════════ */}
+      {/*Modal de visualizaçãp*/}
       <AlertDialog open={openVer} onOpenChange={setOpenVer}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-700 !w-[98vw] !max-w-[98vw] md:!w-[90vw] md:!max-w-[90vw] lg:!w-[82vw] lg:!max-w-[82vw] max-h-[92vh] overflow-y-auto p-4 md:p-8">
-
           <AlertDialogHeader>
             <div className="flex flex-wrap items-center gap-4 pb-4 border-b border-zinc-700">
-
-              {/* Imagem do produto */}
               <div className="w-16 h-16 rounded-xl overflow-hidden border border-zinc-700 shrink-0">
                 <img
                   src={produtoSelecionado?.imagemUrl}
@@ -268,15 +260,12 @@ export default function ProdutosPage() {
                   className="w-full h-full object-cover"
                 />
               </div>
-
               <div className="flex-1 min-w-0">
                 <AlertDialogTitle className="text-white text-xl font-black truncate">
                   {produtoSelecionado?.descricao}
                 </AlertDialogTitle>
                 <p className="text-zinc-400 text-sm mt-0.5">{produtoSelecionado?.marca}</p>
               </div>
-
-              {/* Badge de estoque */}
               <div className={`shrink-0 px-3 py-1.5 rounded-lg text-sm font-semibold border
                 ${produtoSelecionado?.qtdEstoque <= produtoSelecionado?.qtdMinima
                   ? "bg-red-500/20 text-red-400 border-red-700"
@@ -286,10 +275,7 @@ export default function ProdutosPage() {
               </div>
             </div>
           </AlertDialogHeader>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
-
-            {/* ── IDENTIFICAÇÃO ── */}
             <div className="flex flex-col gap-3">
               <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
                 Identificação
@@ -297,8 +283,6 @@ export default function ProdutosPage() {
               <InfoBox label="Descrição" value={produtoSelecionado?.descricao} />
               <InfoBox label="Marca" value={produtoSelecionado?.marca} />
             </div>
-
-            {/* ── PREÇOS E ESTOQUE ── */}
             <div className="flex flex-col gap-3">
               <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
                 Preços e Estoque
@@ -308,17 +292,13 @@ export default function ProdutosPage() {
               <InfoBox label="Qtd. em Estoque" value={produtoSelecionado?.qtdEstoque} />
               <InfoBox label="Qtd. Mínima" value={produtoSelecionado?.qtdMinima} />
             </div>
-
-            {/* ── FORNECEDORES VINCULADOS ── */}
             <div className="flex flex-col gap-3">
               <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
                 Fornecedores vinculados
               </p>
-
               {produtoSelecionado?.fornecedores?.length === 0 && (
                 <p className="text-zinc-600 text-sm italic">Nenhum fornecedor vinculado.</p>
               )}
-
               {produtoSelecionado?.fornecedores?.map((vinculo) => (
                 <div
                   key={vinculo.id}
@@ -332,8 +312,6 @@ export default function ProdutosPage() {
                       {vinculo.fornecedor.cnpj}
                     </span>
                   </div>
-
-                  {/* Botão de remover vínculo */}
                   <button
                     disabled={removendoFornecedor === vinculo.fornecedor.id}
                     onClick={() => handleRemoverFornecedor(
@@ -353,19 +331,13 @@ export default function ProdutosPage() {
                 </div>
               ))}
             </div>
-
           </div>
-
           <AlertDialogFooter className="pt-2 border-t border-zinc-700">
             <AlertDialogCancel className="cursor-pointer">Fechar</AlertDialogCancel>
           </AlertDialogFooter>
-
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* ════════════════════════════════════════════════════════════════════
-          MODAL EDITAR — igual ao original, sem alterações
-      ════════════════════════════════════════════════════════════════════ */}
+      {/*Modal de Editar*/}
       <AlertDialog open={openEditar} onOpenChange={setOpenEditar}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-700 w-[95%] max-w-lg">
           <AlertDialogHeader>
@@ -417,10 +389,7 @@ export default function ProdutosPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* ════════════════════════════════════════════════════════════════════
-          MODAL CRIAR — igual ao original, sem alterações
-      ════════════════════════════════════════════════════════════════════ */}
+      {/*Modal de Criar*/}
       <AlertDialog open={openCriar} onOpenChange={setOpenCriar}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-700 w-[95%] max-w-lg">
           <AlertDialogHeader>
@@ -472,10 +441,7 @@ export default function ProdutosPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* ════════════════════════════════════════════════════════════════════
-          MODAL DELETE — igual ao original, sem alterações
-      ════════════════════════════════════════════════════════════════════ */}
+      {/*Modal de deletar*/}
       <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-700 w-[95%] max-w-lg">
           <AlertDialogHeader>
@@ -507,18 +473,6 @@ export default function ProdutosPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-    </div>
-  )
-}
-
-// ── Cole esta função fora do componente, acima do export default ──────────────
-function InfoBox({ label, value }) {
-  return (
-    <div className="bg-zinc-800 rounded-lg px-4 py-3">
-      <span className="text-zinc-500 text-xs uppercase tracking-wider">{label}</span>
-      <p className="text-white mt-1 break-words text-sm">
-        {value ?? <span className="text-zinc-600 italic">Não informado</span>}
-      </p>
     </div>
   )
 }

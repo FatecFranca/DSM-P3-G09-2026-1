@@ -1,13 +1,24 @@
 "use client"
-import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, ShoppingCart, Users, Building2, TriangleAlert } from "lucide-react"
-import { getPedidosMes, getRecentes, getEstoqueCritico, getProdutosEmEstoque, getTotalClientes,getTotalFornecedores,getFornecedoresHoje,getPedidosHoje,getClientesHoje,getProdutosHoje } from "@/services/dashboardService"
+import { getPedidosMes, getRecentes, getEstoqueCritico, getProdutosEmEstoque, getTotalClientes, getTotalFornecedores, getFornecedoresHoje, getPedidosHoje, getClientesHoje, getProdutosHoje } from "@/services/dashboardService"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function DashBoardPage() {
+
+  const [produtos, setProdutos] = useState(0)
+  const [pedidos, setPedidos] = useState(0)
+  const [fornecedores, setFornecedores] = useState(0)
+  const [clientes, setClientes] = useState(0)
+  const [estoqueCritico, setEstoqueCritico] = useState([])
+  const [recentes, setRecentes] = useState([])
+  const [estoqueDia, setEstoqueDia] = useState(0)
+  const [pedidosDia, setPedidosDia] = useState(0)
+  const [clienteDia, setClienteDia] = useState(0)
+  const [fornecedoresDia, setFornecedoresDia] = useState(0)
 
   const router = useRouter()
 
@@ -24,17 +35,6 @@ export default function DashBoardPage() {
       hour: "2-digit",
       minute: "2-digit"
     })
-
-  const [produtos, setProdutos] = useState(0)
-  const [pedidos, setPedidos] = useState(0)
-  const [fornecedores, setFornecedores] = useState(0)
-  const [clientes, setClientes] = useState(0)
-  const [estoqueCritico, setEstoqueCritico] = useState([])
-  const [recentes, setRecentes] = useState([])
-  const [estoqueDia, setEstoqueDia] = useState(0)
-  const [pedidosDia, setPedidosDia] = useState(0)
-  const [clienteDia, setClienteDia] = useState(0)
-  const [fornecedoresDia, setFornecedoresDia] = useState(0)
 
   useEffect(() => {
     async function carregar() {
@@ -123,7 +123,7 @@ export default function DashBoardPage() {
   useEffect(() => {
     async function carregar() {
       try {
-       const data = await getPedidosHoje()
+        const data = await getPedidosHoje()
         setPedidosDia(data)
       } catch (error) {
         console.error(error)
@@ -261,7 +261,6 @@ export default function DashBoardPage() {
                 <h1 className="text-white ">Pedidos Recentes</h1>
                 <h1 className="text-orange-400 "><a href="/pedidos"> Ver Todos</a></h1>
               </CardTitle>
-
               <Table>
                 <TableHeader className="border-t-2 border-t-zinc-500 hover:bg-zinc-900">
                   <TableRow className="bg-zinc-900">
@@ -308,7 +307,7 @@ export default function DashBoardPage() {
                   const corBarra =
                     porcentagem <= 30 ? "bg-red-500" : "bg-yellow-500";
                   return (
-                    <div key={produto.id}  className="bg-zinc-800 border border-zinc-700 rounded-lg p-3">
+                    <div key={produto.id} className="bg-zinc-800 border border-zinc-700 rounded-lg p-3">
                       <p className="text-sm text-white font-medium mb-2 leading-tight">
                         {produto.descricao}
                       </p>

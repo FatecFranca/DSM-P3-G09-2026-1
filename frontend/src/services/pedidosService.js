@@ -26,7 +26,6 @@ export async function deletePedido(id, justificativa) {
       justificativa
     }
   })
-
   return response.data
 }
 
