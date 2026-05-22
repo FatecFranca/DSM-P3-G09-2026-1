@@ -118,6 +118,11 @@ export const deleteProduto = async (req, res) => {
     if (!produtoExiste) {
       return res.status(404).json({ error: "Produto não encontrado" })
     }
+    await prisma.produtoFornecedor.deleteMany({
+      where: {
+        produtoId: id
+      }
+    })
     const produto = await prisma.produto.delete({
       where: { id }
     })

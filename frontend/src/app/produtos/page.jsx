@@ -19,6 +19,158 @@ function InfoBox({ label, value }) {
     </div>
   )
 }
+//Componente auxiliar de campo de formulário
+function FormField({ label, placeholder, value, onChange, colSpan, type }) {
+  return (
+    <div className={colSpan ? "lg:col-span-" + colSpan : ""}>
+      <label className="text-zinc-500 text-xs uppercase tracking-wider block mb-1.5">
+        {label}
+      </label>
+      <Input
+        placeholder={placeholder}
+        type={type ?? "text"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="bg-zinc-800 border-zinc-700 text-white"
+      />
+    </div>
+  )
+}
+//Grade de campos do formulário (igual para Criar e Editar)
+function FormGrid({
+  descricao,
+  setDescricao,
+  marca,
+  setMarca,
+  setImagem,
+  precoCusto,
+  setPrecoCusto,
+  precoUnitario,
+  setPrecoUnitario,
+  setQtdMinima,
+  qtdMinima,
+  fornecedorId,
+  setFornecedorId,
+  fornecedores,
+  fornecedoresSelecionados,
+  setFornecedoresSelecionados
+}) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
+      <div className="flex flex-col gap-4">
+        <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
+          Identificação
+        </p>
+        <div className="flex flex-col gap-2">
+          <label className="text-zinc-500 text-xs uppercase tracking-wider block mb-1.5">
+            Imagem do Produto
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) {
+                setImagem(file)
+              }
+            }}
+            className="bg-zinc-800 -mt-2 border border-zinc-700 text-white rounded-md  file:bg-orange-500 file:border-0 file:text-white file:px-3 file:py-1 file:rounded-md"
+          />
+        </div>
+        <FormField label="Nome do Produto" placeholder="Nome do Produto" value={descricao} onChange={setDescricao}/>
+        <FormField label="Marca do Produto" placeholder="Marca do Produto" value={marca} onChange={setMarca}/>
+      </div>
+      <div className="flex flex-col gap-4">
+        <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
+          Preços e Estoque
+        </p>
+        <FormField label="Preço de custo" placeholder="0" value={precoCusto} onChange={setPrecoCusto}/>
+        <FormField label="Preço de Venda" placeholder="0" value={precoUnitario} onChange={setPrecoUnitario}/>
+        <FormField label="Quantidade Minima" placeholder="0" value={qtdMinima} onChange={setQtdMinima}/>
+      </div>
+      <div className="flex flex-col gap-4">
+        <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
+          Fornecedores Vinculados
+        </p>
+        <div className="flex gap-2">
+          <select value={fornecedorId} onChange={(e) => setFornecedorId(e.target.value)} className="flex-1 bg-zinc-800 border border-zinc-700 text-white rounded-md h-10 px-3">
+            <option value="">
+              Selecione um fornecedor
+            </option>
+            {fornecedores.map((fornecedor) => (
+              <option
+                key={fornecedor.id}
+                value={fornecedor.id}
+              >
+                {fornecedor.nomeFantasia}
+              </option>
+            ))}
+          </select>
+          <Button type="button" className="bg-orange-500 hover:bg-orange-600" onClick={() => {
+              if (!fornecedorId) return
+              const fornecedorExiste = fornecedoresSelecionados.some(
+                (v) => v.fornecedor?.id === fornecedorId
+              )
+              if (fornecedorExiste) return
+              const fornecedorEncontrado = fornecedores.find(
+                (f) => f.id === fornecedorId
+              )
+              if (!fornecedorEncontrado) return
+              setFornecedoresSelecionados([
+                ...fornecedoresSelecionados,
+                {
+                  fornecedor: fornecedorEncontrado
+                }
+              ])
+              setFornecedorId("")
+            }}
+          >
+            +
+          </Button>
+        </div>
+        <div className="flex flex-col gap-2">
+          {fornecedoresSelecionados.length === 0 && (
+            <p className="text-zinc-500 text-sm italic">
+              Nenhum fornecedor vinculado
+            </p>
+          )}
+          {fornecedoresSelecionados.map((vinculo, index) => (
+            <div
+              key={index}
+              className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 flex items-center justify-between"
+            >
+              <div className="flex flex-col">
+                <span className="text-white text-sm">
+                  {vinculo.fornecedor.nomeFantasia}
+                </span>
+
+                <span className="text-zinc-500 text-xs">
+                  {vinculo.fornecedor.cnpj}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setFornecedoresSelecionados(
+                    fornecedoresSelecionados.filter(
+                      (_, i) => i !== index
+                    )
+                  )
+                }}
+                className="text-red-400 hover:text-red-500 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+//Classes compartilhadas do AlertDialogContent 
+const MODAL_CLASSES = "bg-zinc-900 border-zinc-700 !w-[98vw] !max-w-[98vw] md:!w-[92vw] md:!max-w-[92vw] lg:!w-[88vw] lg:!max-w-[88vw] xl:!w-[82vw] xl:!max-w-[82vw] 2xl:!w-[75vw] 2xl:!max-w-[75vw] max-h-[92vh] overflow-y-auto p-4 md:p-8"
 
 export default function ProdutosPage() {
 
@@ -41,6 +193,13 @@ export default function ProdutosPage() {
   const [fornecedores, setFornecedores] = useState([])
   const [fornecedorId, setFornecedorId] = useState("")
   const [removendoFornecedor, setRemovendoFornecedor] = useState(null)
+  const [fornecedoresSelecionados, setFornecedoresSelecionados] = useState([])
+
+  function exibirMensagem(texto, tipo) {
+    setMensagem(texto)
+    setTipoMensagem(tipo)
+    setTimeout(() => setMensagem(""), 3000)
+  }
 
   async function handleRemoverFornecedor(produtoId, fornecedorId) {
     setRemovendoFornecedor(fornecedorId)
@@ -108,6 +267,7 @@ export default function ProdutosPage() {
       setprecoUnitario(produto.precoUnitario?.toString() || "")
       setQtdMinima(produto.qtdMinima?.toString() || "")
       setFornecedorId("")
+      setFornecedoresSelecionados(produto.fornecedores || [])
     } catch (error) {
       console.error(error)
     }
@@ -140,6 +300,33 @@ export default function ProdutosPage() {
     } catch (error) {
       console.error(error)
     }
+  }
+
+    function ModalHeader({ titulo, subtitulo, badge }) {
+    return (
+      <div className="flex flex-wrap items-center gap-4 pb-4 border-b border-zinc-700">
+        <div className="bg-orange-500/20 p-3 rounded-xl aspect-[4/3]">
+          <img
+            src={produtoSelecionado?.imagemUrl}
+            alt={produtoSelecionado?.descricao}
+            className="h-20 md:h-30 w-auto object-cover"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <AlertDialogTitle className="text-white text-xl font-black truncate">
+            {titulo}
+          </AlertDialogTitle>
+          {subtitulo && (
+            <p className="text-zinc-400 text-sm mt-0.5 truncate">{subtitulo}</p>
+          )}
+        </div>
+        {badge && (
+          <div className="shrink-0 bg-orange-500/20 px-3 py-1.5 rounded-lg text-orange-500 border border-amber-700 text-sm font-semibold">
+            {badge}
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -247,7 +434,6 @@ export default function ProdutosPage() {
           </Card>
         </div>
       </div>
-
       {/*Modal de visualizaçãp*/}
       <AlertDialog open={openVer} onOpenChange={setOpenVer}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-700 !w-[98vw] !max-w-[98vw] md:!w-[90vw] md:!max-w-[90vw] lg:!w-[82vw] lg:!max-w-[82vw] max-h-[92vh] overflow-y-auto p-4 md:p-8">
@@ -312,78 +498,104 @@ export default function ProdutosPage() {
                       {vinculo.fornecedor.cnpj}
                     </span>
                   </div>
-                  <button
-                    disabled={removendoFornecedor === vinculo.fornecedor.id}
-                    onClick={() => handleRemoverFornecedor(
-                      produtoSelecionado.id,
-                      vinculo.fornecedor.id
-                    )}
-                    className="shrink-0 p-1.5 rounded-md border border-red-500/40 text-red-400
-                      hover:bg-red-500 hover:text-white hover:border-red-500
-                      disabled:opacity-40 disabled:cursor-not-allowed
-                      transition-all cursor-pointer"
-                  >
-                    {removendoFornecedor === vinculo.fornecedor.id
-                      ? <span className="text-xs px-1">...</span>
-                      : <X size={14} />
-                    }
-                  </button>
                 </div>
               ))}
             </div>
           </div>
-          <AlertDialogFooter className="pt-2 border-t border-zinc-700">
+          <AlertDialogFooter className="pt-2 border-t border-zinc-700 bg-zinc-900">
             <AlertDialogCancel className="cursor-pointer">Fechar</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {/*Modal de Editar*/}
+      {/*Modal de editar*/}
       <AlertDialog open={openEditar} onOpenChange={setOpenEditar}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-700 w-[95%] max-w-lg">
+        <AlertDialogContent className={MODAL_CLASSES}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Editar Produto</AlertDialogTitle>
-            <div className="text-zinc-400">
-              <div className="grid grid-cols-1 gap-4 mt-4">
-                <Input type="file" accept="image/*" onChange={(e) => setImagem(e.target.files[0])} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Marca" value={marca} onChange={(e) => setMarca(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Preço Custo" value={precoCusto} onChange={(e) => setprecoCusto(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Preço Venda" value={precoUnitario} onChange={(e) => setprecoUnitario(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Quantidade Minima" value={qtdMinima} onChange={(e) => setQtdMinima(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <select value={fornecedorId} onChange={(e) => setFornecedorId(e.target.value)} className="bg-zinc-800 border border-zinc-700 text-white rounded-md h-10 px-3">
-                  <option value="">Selecione um fornecedor (opcional)</option>
-                  {fornecedores.map((f) => (
-                    <option key={f.id} value={f.id}>{f.nomeFantasia}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <ModalHeader
+              titulo="Editar Produto"
+              subtitulo={produtoSelecionado?.descricao}
+            />
           </AlertDialogHeader>
-          <AlertDialogFooter className="bg-zinc-900 border-zinc-700">
-            <AlertDialogCancel className="cursor-pointer">Cancelar</AlertDialogCancel>
-            <AlertDialogAction className="!bg-amber-500 hover:bg-amber-600 cursor-pointer" onClick={async () => {
-              try {
-                const formData = new FormData()
-                if (imagem) formData.append("imagem", imagem)
-                formData.append("descricao", descricao)
-                formData.append("marca", marca)
-                formData.append("precoCusto", precoCusto.replace(",", "."))
-                formData.append("precoUnitario", precoUnitario.replace(",", "."))
-                formData.append("qtdMinima", qtdMinima)
-                const produtoAtualizado = await updateProduto(produtoSelecionado.id, formData)
-                if (fornecedorId) await addFornecedorProduto(produtoAtualizado.id, fornecedorId)
-                await carregarProdutos()
-                setMensagem("Produto editado com sucesso!")
-                setTipoMensagem("sucesso")
-                setTimeout(() => setMensagem(""), 3000)
-                setOpenEditar(false)
-              } catch (error) {
-                setMensagem("Erro ao editar produto!")
-                setTipoMensagem("erro")
-                setTimeout(() => setMensagem(""), 3000)
-                console.error(error)
-              }
-            }}>
+          <FormGrid
+            descricao={descricao}
+            setDescricao={setDescricao}
+            marca={marca}
+            setMarca={setMarca}
+            imagem={imagem}
+            setImagem={setImagem}
+            precoCusto={precoCusto}
+            setPrecoCusto={setprecoCusto}
+            precoUnitario={precoUnitario}
+            setPrecoUnitario={setprecoUnitario}
+            qtdMinima={qtdMinima}
+            setQtdMinima={setQtdMinima}
+            fornecedorId={fornecedorId}
+            setFornecedorId={setFornecedorId}
+            fornecedores={fornecedores}
+            fornecedoresSelecionados={fornecedoresSelecionados}
+            setFornecedoresSelecionados={setFornecedoresSelecionados}
+          />
+          <AlertDialogFooter className="pt-2 border-t border-zinc-700 bg-zinc-900">
+            <AlertDialogCancel className="cursor-pointer">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="!bg-amber-500 hover:bg-amber-600 cursor-pointer"
+              onClick={async () => {
+                try {
+                  const formData = new FormData()
+                  if (imagem) {
+                    formData.append("imagem", imagem)
+                  }
+                  formData.append("descricao", descricao)
+                  formData.append("marca", marca)
+                  formData.append(
+                    "precoCusto",
+                    precoCusto.replace(",", ".")
+                  )
+                  formData.append(
+                    "precoUnitario",
+                    precoUnitario.replace(",", ".")
+                  )
+                  formData.append(
+                    "qtdMinima",
+                    qtdMinima
+                  )
+                  await updateProduto(
+                    produtoSelecionado.id,
+                    formData
+                  )
+                  if (produtoSelecionado?.fornecedores?.length > 0) {
+                    for (const vinculo of produtoSelecionado.fornecedores) {
+
+                      await removeFornecedorProduto(
+                        produtoSelecionado.id,
+                        vinculo.fornecedor.id
+                      )
+                    }
+                  }
+                  // Adiciona fornecedores atuais
+                  for (const vinculo of fornecedoresSelecionados) {
+                    await addFornecedorProduto(
+                      produtoSelecionado.id,
+                      vinculo.fornecedor.id
+                    )
+                  }
+                  await carregarProdutos()
+                  exibirMensagem(
+                    "Produto editado com sucesso!",
+                    "sucesso"
+                  )
+                  setOpenEditar(false)
+                } catch (error) {
+                  exibirMensagem(
+                    "Erro ao editar Produto!",
+                    "erro"
+                  )
+                  console.error(error)
+                }
+              }}
+            >
               Editar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -391,51 +603,89 @@ export default function ProdutosPage() {
       </AlertDialog>
       {/*Modal de Criar*/}
       <AlertDialog open={openCriar} onOpenChange={setOpenCriar}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-700 w-[95%] max-w-lg">
+        <AlertDialogContent className={MODAL_CLASSES}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Novo Produto</AlertDialogTitle>
-            <div className="text-zinc-400">
-              <div className="flex flex-col gap-4 mt-4">
-                <Input type="file" accept="image/*" onChange={(e) => setImagem(e.target.files[0])} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Marca" value={marca} onChange={(e) => setMarca(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Preço Custo" value={precoCusto} onChange={(e) => setprecoCusto(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Preço Venda" value={precoUnitario} onChange={(e) => setprecoUnitario(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input placeholder="Quantidade Minima" value={qtdMinima} onChange={(e) => setQtdMinima(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" />
-                <select value={fornecedorId} onChange={(e) => setFornecedorId(e.target.value)} className="bg-zinc-800 border border-zinc-700 text-white rounded-md h-10 px-3">
-                  <option value="">Selecione um fornecedor (opcional)</option>
-                  {fornecedores.map((f) => (
-                    <option key={f.id} value={f.id}>{f.nomeFantasia}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <AlertDialogTitle className="text-white text-xl font-black">
+              Novo Produto
+            </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogFooter className="bg-zinc-900 border-zinc-700">
-            <AlertDialogCancel className="cursor-pointer">Cancelar</AlertDialogCancel>
-            <AlertDialogAction className="!bg-green-500 hover:bg-green-600 cursor-pointer" onClick={async () => {
-              try {
-                const formData = new FormData()
-                if (imagem) formData.append("imagem", imagem)
-                formData.append("descricao", descricao)
-                formData.append("marca", marca)
-                formData.append("precoCusto", precoCusto.replace(",", "."))
-                formData.append("precoUnitario", precoUnitario.replace(",", "."))
-                formData.append("qtdMinima", qtdMinima)
-                const produtoCriado = await createProduto(formData)
-                if (fornecedorId) await addFornecedorProduto(produtoCriado.id, fornecedorId)
-                await carregarProdutos()
-                setMensagem("Produto criado com sucesso!")
-                setTipoMensagem("sucesso")
-                setTimeout(() => setMensagem(""), 3000)
-                setOpenCriar(false)
-              } catch (error) {
-                setMensagem("Erro ao criar produto, descrição ja existente!")
-                setTipoMensagem("erro")
-                setTimeout(() => setMensagem(""), 3000)
-                console.error(error)
-              }
-            }}>
+          <FormGrid
+            descricao={descricao}
+            setDescricao={setDescricao}
+            marca={marca}
+            setMarca={setMarca}
+            imagem={imagem}
+            setImagem={setImagem}
+            precoCusto={precoCusto}
+            setPrecoCusto={setprecoCusto}
+            precoUnitario={precoUnitario}
+            setPrecoUnitario={setprecoUnitario}
+            qtdMinima={qtdMinima}
+            setQtdMinima={setQtdMinima}
+            fornecedorId={fornecedorId}
+            setFornecedorId={setFornecedorId}
+            fornecedores={fornecedores}
+            fornecedoresSelecionados={fornecedoresSelecionados}
+            setFornecedoresSelecionados={setFornecedoresSelecionados}
+          />
+          <AlertDialogFooter className="pt-2 border-t border-zinc-700 bg-zinc-900">
+            <AlertDialogCancel className="cursor-pointer">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="!bg-green-500 hover:bg-green-600 cursor-pointer"
+              onClick={async () => {
+                try {
+                  // Cria produto
+                  const formData = new FormData()
+                  if (imagem) {
+                    formData.append("imagem", imagem)
+                  }
+                  formData.append("descricao", descricao)
+                  formData.append("marca", marca)
+                  formData.append(
+                    "precoCusto",
+                    precoCusto.replace(",", ".")
+                  )
+                  formData.append(
+                    "precoUnitario",
+                    precoUnitario.replace(",", ".")
+                  )
+                  formData.append(
+                    "qtdMinima",
+                    qtdMinima
+                  )
+                  const produtoCriado = await createProduto(formData)
+                  // Adiciona fornecedores vinculados
+                  for (const vinculo of fornecedoresSelecionados) {
+                    await addFornecedorProduto(
+                      produtoCriado.id,
+                      vinculo.fornecedor.id
+                    )
+                  }
+                  await carregarProdutos()
+                  setImagem(null)
+                  setDescricao("")
+                  setMarca("")
+                  setprecoCusto("")
+                  setprecoUnitario("")
+                  setQtdMinima("")
+                  setFornecedorId("")
+                  setFornecedoresSelecionados([])
+                  exibirMensagem(
+                    "Produto criado com sucesso!",
+                    "sucesso"
+                  )
+                  setOpenCriar(false)
+                } catch (error) {
+                  console.error(error)
+                  exibirMensagem(
+                    "Erro ao criar produto!",
+                    "erro"
+                  )
+                }
+              }}
+            >
               Criar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -447,32 +697,30 @@ export default function ProdutosPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Tem certeza?</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-400">
-              Essa ação irá deletar o produto permanentemente.
+              Essa ação irá deletar o produto <strong className="text-white">{produtoSelecionado?.descricao}</strong> permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="bg-zinc-900 border-zinc-700">
+          <AlertDialogFooter className="bg-zinc-900">
             <AlertDialogCancel className="cursor-pointer">Cancelar</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-500 hover:bg-red-600 cursor-pointer" onClick={async () => {
-              try {
-                await deleteProduto(produtoSelecionado.id)
-                await carregarProdutos()
-                setMensagem("Produto deletado com sucesso!")
-                setTipoMensagem("sucesso")
-                setTimeout(() => setMensagem(""), 3000)
-                setOpenDelete(false)
-              } catch (error) {
-                setMensagem("Erro ao deletar produto!")
-                setTipoMensagem("erro")
-                setTimeout(() => setMensagem(""), 3000)
-                console.error(error)
-              }
-            }}>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-600 cursor-pointer"
+              onClick={async () => {
+                try {
+                  await deleteProduto(produtoSelecionado.id)
+                  await carregarProdutos()
+                  exibirMensagem("Produto deletado com sucesso!", "sucesso")
+                  setOpenDelete(false)
+                } catch (error) {
+                  exibirMensagem("Erro ao deletar Produto!", "erro")
+                  console.error(error)
+                }
+              }}
+            >
               Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   )
 }
