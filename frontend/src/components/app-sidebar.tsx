@@ -98,7 +98,7 @@ export function AppSidebar() {
                           className={`flex items-center gap-3 px-4 py-3 border-l-4 transition-all duration-200 active:scale-[0.98]
                             ${isActive
                               ? "border-orange-500 bg-orange-500/15 text-white"
-                              : "border-transparent text-zinc-300 hover:bg-orange-500/15 hover:border-orange-500 hover:text-white hover:translate-x-1"
+                              : "border-transparent text-zinc-300 hover:bg-orange-500/15 hover:border-orange-500 hover:text-black hover:translate-x-1"
                             }
                           `}
                         >
