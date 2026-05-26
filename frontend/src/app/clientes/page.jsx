@@ -74,7 +74,7 @@ function FormGrid({
                     <label className="text-sm text-zinc-300">
                         Tipo de Pessoa
                     </label>
-                    <select 
+                    <select
                         value={cnpj === true ? "juridica" : "fisica"}
                         onChange={(e) => {
                             if (e.target.value === "juridica") {
