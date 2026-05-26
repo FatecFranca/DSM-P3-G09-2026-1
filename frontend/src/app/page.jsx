@@ -1,9 +1,10 @@
+import { redirect } from "next/navigation"
 export default async function home(){
 
+    redirect("/login")
 
     return(
         <div>
-            <h1>dsadasdad</h1>
         </div>
     )
 }

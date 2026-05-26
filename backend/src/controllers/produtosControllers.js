@@ -1,119 +1,171 @@
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
-export const retrieveAll = async (req,res) =>{
-    try{
-        const produto= await prisma.produto.findMany({
-      include:{movimentacoes:true,fornecedores:true}
-    });
-        res.json(produto)
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error:error.message})
+
+export const retrieveAll = async (req, res) => {
+  try {
+    const produto = await prisma.produto.findMany({
+      where: { usuarioId: req.usuario.id }, include: { fornecedores: { include: { fornecedor: true } } }
+    })
+    res.json(produto)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const update = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { descricao, marca, detalhes } = req.body
+    if (!id) {
+      return res.status(400).json({ erro: "O id do produto é obrigatório!" })
     }
-};
-export const update = async (req,res) =>{
-    try{
-        const {id}= req.params;
-        const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdMinima}=req.body;
-
-        if(!id){
-        return res.status(400).json({ erro: "O id do produto é obrigatório!" });
+    const produtoExiste = await prisma.produto.findFirst({
+      where: { id, usuarioId: req.usuario.id }
+    })
+    let imagemUrl = produtoExiste.imagemUrl
+    if (!produtoExiste) {
+      return res.status(404).json({ error: "Produto não encontrado" })
     }
-        
-        const produto = await prisma.produto.update({
-            where: {id},
-            data: {descricao:descricao,marca:marca,imagemUrl:imagemUrl,detalhes:detalhes,unidadeMedida:unidadeMedida,precoCusto:precoCusto,precoUnitario:precoUnitario,qtdMinima:qtdMinima}
-
-        });
-        res.json(produto);
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error: error.message})
+    if (req.file) {
+      imagemUrl = req.file.path
     }
- 
-};
- export const create = async (req,res )=>{
+    const produto = await prisma.produto.update({
+      where: { id },
+      data: {
+        descricao,
+        marca,
+        imagemUrl,
+        detalhes,
+        precoCusto: parseFloat(req.body.precoCusto),
+        precoUnitario: parseFloat(req.body.precoUnitario),
+        qtdMinima: parseFloat(req.body.qtdMinima),
+      }
+    })
+    res.json(produto)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error.message })
+  }
+}
 
-    try{
-        const {descricao,marca,imagemUrl,detalhes,unidadeMedida,precoCusto,precoUnitario,qtdMinima}=req.body;
-
-        const consulta= await prisma.produto.findFirst({where:{descricao:descricao}});
-        if (consulta){ //Se ja tiver alguem com a mesmo descricao
-            return res.status(400).json({ erro: "Ja existe um produto com esta descricao"})
-        }
-
-        const produto = await prisma.produto.create({
-            data: {
-                descricao:descricao,
-                marca:marca,
-                imagemUrl:imagemUrl,
-                detalhes:detalhes,
-                unidadeMedida:unidadeMedida,
-                precoCusto:precoCusto,
-                precoUnitario:precoUnitario,
-                qtdMinima:qtdMinima
-            }
-        })
-        res.json(produto)
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error: error.message})
+export const create = async (req, res) => {
+  try {
+    const { descricao, marca, detalhes } = req.body
+    let imagemUrl = null
+    const consulta = await prisma.produto.findFirst({
+      where: {
+        descricao,
+        usuarioId: req.usuario.id
+      }
+    })
+    if (consulta) {
+      return res.status(400).json({ erro: "Ja existe um produto com esta descricao" })
     }
-
- }
- export const retrieveOne = async (req,res)=>{
-    try{
-        const {id}=req.params
-
-        if(!id){
-        return res.status(400).json({ erro: "O id do produto é obrigatório!" });
+    if (req.file) {
+      imagemUrl = req.file.path
     }
-        
-        const produto = await prisma.produto.findUnique({where:{id:id}})
+    const produto = await prisma.produto.create({
+      data: {
+        descricao,
+        marca,
+        imagemUrl,
+        detalhes,
+        precoCusto: parseFloat(req.body.precoCusto),
+        precoUnitario: parseFloat(req.body.precoUnitario),
+        qtdMinima: parseFloat(req.body.qtdMinima),
+        usuarioId: req.usuario.id
+      }
+    })
+    console.log("BODY:", req.body)
+    console.log("FILE:", req.file)
+    res.json(produto)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error.message })
+  }
+}
 
-        res.json(produto)
-    }catch(error){
-        console.error(error)
-        res.status(500).json({error: error.message})
+export const retrieveOne = async (req, res) => {
+  try {
+    const { id } = req.params
+    if (!id) {
+      return res.status(400).json({ erro: "O id do produto é obrigatório!" })
     }
- }
- export const deleteProduto = async (req,res)=>{
-    try{
-        const {id}=req.params
+    const produto = await prisma.produto.findFirst({
+      where: {
+        id,
+        usuarioId: req.usuario.id
+      }, include: { fornecedores: { include: { fornecedor: true } } }
+    })
+    res.json(produto)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: error.message })
+  }
+}
 
-        if(!id){
-        return res.status(400).json({ erro: "O id do produto é obrigatório!" });
+export const deleteProduto = async (req, res) => {
+  try {
+    const { id } = req.params
+    if (!id) {
+      return res.status(400).json({ erro: "O id do produto é obrigatório!" })
     }
-
-        const produto = await prisma.produto.delete({where:{id:id}})
-
-        res.json(produto)
-    }catch(error){
-       // P2025: erro do Prisma referente a objeto não encontrado
-    if(error?.code === 'P2025') {
-      // Não encontrou e não excluiu ~> retorna HTTP 404: Not Found
+    const produtoExiste = await prisma.produto.findFirst({
+      where: { id, usuarioId: req.usuario.id }
+    })
+    if (!produtoExiste) {
+      return res.status(404).json({ error: "Produto não encontrado" })
+    }
+    await prisma.produtoFornecedor.deleteMany({
+      where: {
+        produtoId: id
+      }
+    })
+    const produto = await prisma.produto.delete({
+      where: { id }
+    })
+    res.json(produto)
+  } catch (error) {
+    if (error?.code === 'P2025') {
       res.status(404).end()
-    }
-    else {    // Outros tipos de erro
-      // Deu errado: exibe o erro no terminal
+    } else {
       console.error(error)
-
-      // Envia o erro ao front-end, com status de erro
-      // HTTP 500: Internal Server Error
       res.status(500).send(error)
     }
   }
 }
+
 export const addFornecedor = async (req, res) => {
   try {
-    const { id } = req.params  // produtoId
+    const { id } = req.params
     const { fornecedorId, precoUltimaCompra } = req.body
-
+    const produto = await prisma.produto.findFirst({
+      where: { id, usuarioId: req.usuario.id }
+    })
+    if (!produto) {
+      return res.status(404).json({ error: "Produto não encontrado" })
+    }
+    const fornecedor = await prisma.fornecedor.findFirst({
+      where: { id: fornecedorId, usuarioId: req.usuario.id }
+    })
+    if (!fornecedor) {
+      return res.status(404).json({ error: "Fornecedor não encontrado" })
+    }
     const vinculo = await prisma.produtoFornecedor.upsert({
-      where: { produtoId_fornecedorId: { produtoId: id, fornecedorId: fornecedorId } },
-      update: { precoUltimaCompra: precoUltimaCompra },
-      create: { produtoId: id, fornecedorId: fornecedorId, precoUltimaCompra: precoUltimaCompra }
+      where: {
+        produtoId_fornecedorId: {
+          produtoId: id,
+          fornecedorId
+        }
+      },
+      update: { precoUltimaCompra },
+      create: {
+        produtoId: id,
+        fornecedorId,
+        precoUltimaCompra
+      }
     })
     res.json(vinculo)
   } catch (error) {
@@ -126,43 +178,41 @@ export const removeFornecedor = async (req, res) => {
   try {
     const { id, fornecedorId } = req.params
     await prisma.produtoFornecedor.delete({
-      where: { produtoId_fornecedorId: { produtoId: id, fornecedorId: fornecedorId } }
+      where: {
+        produtoId_fornecedorId: {
+          produtoId: id,
+          fornecedorId
+        }
+      }
     })
     res.status(204).end()
   } catch (error) {
-    if (error?.code === 'P2025') return res.status(404).end()
+    if (error?.code === 'P2025') {
+      return res.status(404).end()
+    }
     res.status(500).json({ error: error.message })
   }
 }
 
-export const uploadImagem = async (req,res) => {
-
-    try {
-        const { id } = req.params;
-        if (!req.file) {
-            return res.status(400).json({
-                erro: "Imagem obrigatória"
-            });
-        }
-
-        const produto =
-            await prisma.produto.update({
-            where: {
-                id
-            },
-            data: {
-                imagemUrl: req.file.path
-            }
-        });
-
-        res.json(produto);
-
-    } catch(error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            error: error.message
-        });
-    }
-}
+export const getDia = async (req, res) => {
+  try {
+    const hoje = new Date();
+    // Início e fim do dia no horário local do servidor
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0);
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59);
+    const produtos = await prisma.produto.findMany({
+      where: {
+        usuarioId: req.usuario.id,
+        createdAt: {
+          gte: inicio,
+          lte: fim,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(produtos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: error.message });
+  }
+};
