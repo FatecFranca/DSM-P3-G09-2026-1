@@ -5,62 +5,116 @@ const prisma = new PrismaClient()
 
 export const retrieveAll = async (req, res) => {
   try {
+
     const pedido = await prisma.pedido.findMany({
-      where: { usuarioId: req.usuario.id },
-      include: { itens: true, cliente: true }, orderBy: { createdAt: "desc" }
+      where: {
+        usuarioId: req.usuario.id
+      },
+      include: {
+        cliente: true,
+        itens: {
+          include: {
+            produto: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
     })
     res.json(pedido)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({
+      error: error.message
+    })
   }
 }
 
 export const update = async (req, res) => {
   try {
     const { id } = req.params
-    const { formaPagamento, clienteId } = req.body
-    if (!id) {
-      return res.status(400).json({ erro: "O id do pedido é obrigatório!" })
-    }
-    const pedidoExiste = await prisma.pedido.findFirst({
-      where: { id, usuarioId: req.usuario.id }
-    })
-    if (!pedidoExiste) {
-      return res.status(404).json({ error: "Pedido não encontrado" })
-    }
-    const cliente = await prisma.cliente.findFirst({
-      where: { id: clienteId, usuarioId: req.usuario.id }
-    })
-    if (!cliente) {
-      return res.status(404).json({ error: "Cliente não encontrado" })
-    }
-    const pedido = await prisma.pedido.update({
-      where: { id },
-      data: {
-        formaPagamento,
-        clienteId
+    const {
+      status,
+      formaPagamento
+    } = req.body
+    const pedido = await prisma.pedido.findFirst({
+      where: {
+        id,
+        usuarioId: req.usuario.id
+      },
+      include: {
+        itens: true
       }
     })
-    res.json(pedido)
+    if (!pedido) {
+      return res.status(404).json({
+        error: "Pedido não encontrado"
+      })
+    }
+    // DEVOLVER ESTOQUE AO CANCELAR
+    if (
+      status === "Cancelado" &&
+      pedido.status !== "Cancelado"
+    ) {
+      for (const item of pedido.itens) {
+        const produto =
+          await prisma.produto.findUnique({
+            where: {
+              id: item.produtoId
+            }
+          })
+        await prisma.produto.update({
+          where: {
+            id: item.produtoId
+          },
+          data: {
+            qtdEstoque:
+              produto.qtdEstoque + item.quantidade
+          }
+        })
+        // REGISTRA MOVIMENTAÇÃO
+        await prisma.movimentacao.create({
+          data: {
+            justificativa:
+              "Cancelamento do pedido",
+
+            quantidade:
+              item.quantidade,
+
+            produtoId:
+              item.produtoId,
+
+            itemPedidoId:
+              item.id,
+
+            usuarioId:
+              req.usuario.id
+          }
+        })
+      }
+    }
+    const pedidoAtualizado =
+      await prisma.pedido.update({
+        where: {
+          id
+        },
+        data: {
+          status,
+          formaPagamento
+        }
+      })
+    return res.json(pedidoAtualizado)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({
+      error: "Erro ao atualizar pedido"
+    })
   }
 }
-
 export const create = async (req, res) => {
   try {
-    const { numPedido, formaPagamento, clienteId } = req.body
-    const consulta = await prisma.pedido.findFirst({
-      where: {
-        numPedido,
-        usuarioId: req.usuario.id
-      }
-    })
-    if (consulta) {
-      return res.status(400).json({ erro: "Ja existe um pedido com este número" })
-    }
+    const { formaPagamento, clienteId } = req.body
     const cliente = await prisma.cliente.findFirst({
       where: {
         id: clienteId,
@@ -68,41 +122,70 @@ export const create = async (req, res) => {
       }
     })
     if (!cliente) {
-      return res.status(404).json({ error: "Cliente não encontrado" })
+      return res.status(404).json({
+        error: "Cliente não encontrado"
+      })
     }
+    // busca último pedido
+    const ultimoPedido = await prisma.pedido.findFirst({
+      where: {
+        usuarioId: req.usuario.id
+      },
+      orderBy: {
+        numPedido: "desc"
+      }
+    })
+    // incrementa automaticamente
+    const proximoNumero = ultimoPedido
+      ? ultimoPedido.numPedido + 1
+      : 1
     const pedido = await prisma.pedido.create({
       data: {
-        numPedido,
+        numPedido: proximoNumero,
         formaPagamento,
         clienteId,
         valorTotal: 0,
-        usuarioId: req.usuario.id
+        usuarioId: req.usuario.id,
+        status: "Pendente"
       }
     })
     res.json(pedido)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({
+      error: error.message
+    })
   }
-}
+} 
 
 export const retrieveOne = async (req, res) => {
   try {
     const { id } = req.params
     if (!id) {
-      return res.status(400).json({ erro: "O id do pedido é obrigatório!" })
+      return res.status(400).json({
+        erro: "O id do pedido é obrigatório!"
+      })
     }
     const pedido = await prisma.pedido.findFirst({
       where: {
         id,
         usuarioId: req.usuario.id
       },
-      include: { itens: true, cliente: true }
+      include: {
+        cliente: true,
+        itens: {
+          include: {
+            produto: true
+          }
+        }
+      }
     })
     res.json(pedido)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({
+      error: error.message
+    })
   }
 }
 // ira ser usado caso criado algum pedido errado, nao deve-se deletar pedidos,
@@ -305,6 +388,7 @@ export const getDia = async (req, res) => {
     const fim = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 23, 59, 59)
     const pedidos = await prisma.pedido.findMany({
       where: {
+        usuarioId: req.usuario.id,
         createdAt: {
           gte: inicio,
           lte: fim,

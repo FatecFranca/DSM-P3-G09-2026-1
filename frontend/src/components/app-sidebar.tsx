@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import logo from "@/assets/autoStockLogo.png"
 import BotaoLogout from "@/components/ui/buttonLogOut"
 import { isAdmin } from "@/services/authService"
-import { LayoutDashboard, Box, Users, Building, ShoppingBag, ArrowDownUp, Shield } from "lucide-react"
+import { LayoutDashboard, Box, Users, Building, ShoppingBag, ArrowDownUp, Shield,ArrowBigUp } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 
 export function AppSidebar() {
@@ -44,10 +44,16 @@ export function AppSidebar() {
         icon: ShoppingBag
       },
       {
+        title: "Entradas",
+        href: "/entradas",
+        icon: ArrowBigUp
+      },
+      {
         title: "Movimentação",
         href: "/movimentacao",
         icon: ArrowDownUp
       }
+      
     ]
     if (isAdmin()) {
       items.push({

@@ -1,4 +1,4 @@
-export async function registrarEntrada(tx,produtoId,quantidade,justificativa,usuarioId) {
+export async function registrarEntrada(tx, produtoId, quantidade, justificativa, usuarioId) {
 
   const produto = await tx.produto.findFirst({
     where: {
@@ -25,7 +25,7 @@ export async function registrarEntrada(tx,produtoId,quantidade,justificativa,usu
   })
 }
 
-export async function registrarSaida(tx,produtoId,quantidade,itemPedidoId,justificativa,usuarioId) {
+export async function registrarSaida(tx, produtoId, quantidade, itemPedidoId, justificativa, usuarioId) {
 
   const produto = await tx.produto.findFirst({
     where: {
@@ -42,7 +42,7 @@ export async function registrarSaida(tx,produtoId,quantidade,itemPedidoId,justif
   await tx.movimentacao.create({
     data: {
       justificativa,
-      quantidade,
+      quantidade: -Math.abs(quantidade),
       produtoId,
       itemPedidoId,
       usuarioId
@@ -56,7 +56,7 @@ export async function registrarSaida(tx,produtoId,quantidade,itemPedidoId,justif
   })
 }
 
-export async function atualizarSaida(tx,produtoId,novaQuantidade,itemPedidoId,justificativa,usuarioId) {
+export async function atualizarSaida(tx, produtoId, novaQuantidade, itemPedidoId, justificativa, usuarioId) {
 
   const itemAntigo = await tx.itemPedido.findUnique({
     where: { id: itemPedidoId }
@@ -93,6 +93,17 @@ export async function atualizarSaida(tx,produtoId,novaQuantidade,itemPedidoId,ju
     }
   })
   if (novaQuantidade > itemAntigo.quantidade) {
+  await tx.movimentacao.create({
+    data: {
+      justificativa,
+      quantidade: -Math.abs(diferenca),
+      produtoId,
+      itemPedidoId,
+      usuarioId
+    }
+  })
+}
+  if (novaQuantidade < itemAntigo.quantidade) {
     await tx.movimentacao.create({
       data: {
         justificativa,
@@ -103,20 +114,9 @@ export async function atualizarSaida(tx,produtoId,novaQuantidade,itemPedidoId,ju
       }
     })
   }
-  if (novaQuantidade < itemAntigo.quantidade) {
-    await tx.movimentacao.create({
-      data: {
-        justificativa,
-        quantidade: - Math.abs(diferenca),
-        produtoId,
-        itemPedidoId,
-        usuarioId
-      }
-    })
-  }
 }
 
-export async function cancelarSaida(tx,produtoId,quantidade,itemPedidoId,justificativa,usuarioId) {
+export async function cancelarSaida(tx, produtoId, quantidade, itemPedidoId, justificativa, usuarioId) {
 
   const produto = await tx.produto.findFirst({
     where: {

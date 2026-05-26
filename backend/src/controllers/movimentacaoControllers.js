@@ -7,7 +7,7 @@ export const retrieveAll = async (req, res) => {
   try {
     const movimentacao = await prisma.movimentacao.findMany({
       where: { usuarioId: req.usuario.id },
-      include: { produto: true, itemPedido: true }
+      include: { produto: true, itemPedido:{include:{pedido:true}} },orderBy:{createdAt:"desc"}
     })
     res.json(movimentacao)
   } catch (error) {

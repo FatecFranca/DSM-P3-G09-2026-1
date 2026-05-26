@@ -262,7 +262,7 @@ export default function ClientesPage() {
                 </div>
                 <div className="flex flex-wrap pr-13 pt-3 justify-between">
                     <h1 className="text-white text-3xl font-black">CLIENTES</h1>
-                    <Button className="p-5 cursor-pointer bg-orange-500" onClick={async () => {
+                    <Button className="bg-orange-500 hover:bg-orange-600 transition-all duration-200 p-5 rounded-lg font-semibold  shadow-lg shadow-orange-500/20" onClick={async () => {
                         await abrirCriar()
                         setOpenCriar(true)
                     }}>+ Novo Cliente</Button>

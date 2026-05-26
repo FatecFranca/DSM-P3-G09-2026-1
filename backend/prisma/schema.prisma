@@ -52,6 +52,7 @@ model Pedido {
   createdAt         DateTime      @default(now())
   valorTotal        Float
   formaPagamento    String
+  status            String
 
   usuarioId         String        @db.ObjectId
   usuario           Usuario       @relation(fields: [usuarioId], references: [id])
@@ -75,7 +76,7 @@ model ItemPedido {
   produtoId         String         @db.ObjectId
   produto           Produto        @relation(fields: [produtoId], references: [id])
 
-  movimentacao      Movimentacao?
+  movimentacao      Movimentacao[]
 }
 
 model Produto {
@@ -148,6 +149,6 @@ model Movimentacao {
   produtoId         String        @db.ObjectId
   produto           Produto       @relation(fields: [produtoId], references: [id])
 
-  itemPedidoId      String?       @unique @db.ObjectId
+  itemPedidoId      String?       @db.ObjectId
   itemPedido        ItemPedido?   @relation(fields: [itemPedidoId], references: [id])
 }

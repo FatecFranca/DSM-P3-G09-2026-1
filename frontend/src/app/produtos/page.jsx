@@ -77,16 +77,16 @@ function FormGrid({
             className="bg-zinc-800 -mt-2 border border-zinc-700 text-white rounded-md  file:bg-orange-500 file:border-0 file:text-white file:px-3 file:py-1 file:rounded-md"
           />
         </div>
-        <FormField label="Nome do Produto" placeholder="Nome do Produto" value={descricao} onChange={setDescricao}/>
-        <FormField label="Marca do Produto" placeholder="Marca do Produto" value={marca} onChange={setMarca}/>
+        <FormField label="Nome do Produto" placeholder="Nome do Produto" value={descricao} onChange={setDescricao} />
+        <FormField label="Marca do Produto" placeholder="Marca do Produto" value={marca} onChange={setMarca} />
       </div>
       <div className="flex flex-col gap-4">
         <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
           Preços e Estoque
         </p>
-        <FormField label="Preço de custo" placeholder="0" value={precoCusto} onChange={setPrecoCusto}/>
-        <FormField label="Preço de Venda" placeholder="0" value={precoUnitario} onChange={setPrecoUnitario}/>
-        <FormField label="Quantidade Minima" placeholder="0" value={qtdMinima} onChange={setQtdMinima}/>
+        <FormField label="Preço de custo" placeholder="0" value={precoCusto} onChange={setPrecoCusto} />
+        <FormField label="Preço de Venda" placeholder="0" value={precoUnitario} onChange={setPrecoUnitario} />
+        <FormField label="Quantidade Minima" placeholder="0" value={qtdMinima} onChange={setQtdMinima} />
       </div>
       <div className="flex flex-col gap-4">
         <p className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
@@ -107,23 +107,23 @@ function FormGrid({
             ))}
           </select>
           <Button type="button" className="bg-orange-500 hover:bg-orange-600" onClick={() => {
-              if (!fornecedorId) return
-              const fornecedorExiste = fornecedoresSelecionados.some(
-                (v) => v.fornecedor?.id === fornecedorId
-              )
-              if (fornecedorExiste) return
-              const fornecedorEncontrado = fornecedores.find(
-                (f) => f.id === fornecedorId
-              )
-              if (!fornecedorEncontrado) return
-              setFornecedoresSelecionados([
-                ...fornecedoresSelecionados,
-                {
-                  fornecedor: fornecedorEncontrado
-                }
-              ])
-              setFornecedorId("")
-            }}
+            if (!fornecedorId) return
+            const fornecedorExiste = fornecedoresSelecionados.some(
+              (v) => v.fornecedor?.id === fornecedorId
+            )
+            if (fornecedorExiste) return
+            const fornecedorEncontrado = fornecedores.find(
+              (f) => f.id === fornecedorId
+            )
+            if (!fornecedorEncontrado) return
+            setFornecedoresSelecionados([
+              ...fornecedoresSelecionados,
+              {
+                fornecedor: fornecedorEncontrado
+              }
+            ])
+            setFornecedorId("")
+          }}
           >
             +
           </Button>
@@ -238,8 +238,8 @@ export default function ProdutosPage() {
     const nomeMatch = produto.descricao.toLowerCase().includes(pesquisa.toLowerCase())
     const marcaMatch = produto.marca.toLowerCase().includes(pesquisa.toLowerCase())
     const pesquisaMatch = nomeMatch || marcaMatch
-    if (filtro === "critico") return produto.qtdEstoque <= produto.qtdMinima && pesquisaMatch
-    if (filtro === "ok") return produto.qtdEstoque > produto.qtdMinima && pesquisaMatch
+    if (filtro === "Critico") return produto.qtdEstoque <= produto.qtdMinima && pesquisaMatch
+    if (filtro === "OK") return produto.qtdEstoque > produto.qtdMinima && pesquisaMatch
     return pesquisaMatch
   })
 
@@ -282,6 +282,7 @@ export default function ProdutosPage() {
     setprecoUnitario("")
     setQtdMinima("")
     setFornecedorId("")
+    setFornecedoresSelecionados([])
   }
 
   async function abrirDelete(id) {
@@ -302,15 +303,20 @@ export default function ProdutosPage() {
     }
   }
 
-    function ModalHeader({ titulo, subtitulo, badge }) {
+  function ModalHeader({ titulo, subtitulo, badge }) {
     return (
       <div className="flex flex-wrap items-center gap-4 pb-4 border-b border-zinc-700">
-        <div className="bg-orange-500/20 p-3 rounded-xl aspect-[4/3]">
-          <img
-            src={produtoSelecionado?.imagemUrl}
-            alt={produtoSelecionado?.descricao}
-            className="h-20 md:h-30 w-auto object-cover"
-          />
+        <div className="bg-black p-3 rounded-xl aspect-[4/3] flex items-center justify-center">
+          {produtoSelecionado?.imagemUrl ? (
+            <img
+              src={produtoSelecionado.imagemUrl}
+              alt={produtoSelecionado.descricao}
+              className="h-20 md:h-30 w-auto object-cover"
+            />
+          ) : (
+            <span className="text-zinc-500 text-sm">
+            </span>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <AlertDialogTitle className="text-white text-xl font-black truncate">
@@ -343,7 +349,7 @@ export default function ProdutosPage() {
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between pt-3">
           <h1 className="text-white text-3xl font-black">PRODUTOS</h1>
-          <Button className="bg-orange-500 cursor-pointer p-5" onClick={async () => {
+          <Button className="bg-orange-500 hover:bg-orange-600 transition-all duration-200 p-5 rounded-lg font-semibold  shadow-lg shadow-orange-500/20" onClick={async () => {
             await abrirCriar()
             setOpenCriar(true)
           }}>
@@ -352,77 +358,152 @@ export default function ProdutosPage() {
         </div>
       </div>
       <div className="flex flex-col md:flex-row px-4 md:px-8 lg:px-13 pt-6 gap-3">
-        <Input placeholder="Pesquisar produto..." className="w-full md:flex-1 p-5 background-sidebar border border-zinc-600 text-white hover:border-orange-500" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} />
-        <Button className="w-full md:w-auto px-6 p-5 cursor-pointer background-sidebar border-zinc-500 hover:border-orange-500 hover:text-orange-500" onClick={() => setFiltro("todos")}>TODOS</Button>
-        <Button className="w-full md:w-auto px-6 p-5 cursor-pointer background-sidebar border-zinc-500 hover:border-orange-500 hover:text-orange-500" onClick={() => setFiltro("critico")}>CRITICO</Button>
-        <Button className="w-full md:w-auto px-6 p-5 cursor-pointer background-sidebar border-zinc-500 hover:border-orange-500 hover:text-orange-500" onClick={() => setFiltro("ok")}>OK</Button>
+        <Input placeholder="Pesquisar produto..." className="w-full md:flex-1 p-5 transition-all background-sidebar border border-zinc-800 text-white hover:border-orange-500 hover:text-orange-500" value={pesquisa} onChange={(e) => setPesquisa(e.target.value)} />
+        {["Todos", "Critico", "OK"].map((item) => (
+          <button
+            key={item}
+            onClick={() => setFiltro(item)}
+            className={`
+              px-4 py-2 rounded-lg border transition-all
+              ${filtro === item
+                ? "border-orange-500 text-orange-500 bg-orange-500/10"
+                : "border-zinc-800 text-zinc-400 hover:border-orange-500 hover:text-orange-500"
+              }`}>
+            {item}
+          </button>
+        ))}
       </div>
       <div className="flex flex-wrap gap-4 px-4 md:px-8 lg:px-13 pt-5">
         <div className="flex-3 w-full">
-          <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-zinc-500 overflow-hidden">
-            <CardTitle className="flex justify-between p-2 pl-4 -mt-2 pr-4">
-              <h1 className="text-white">Produtos</h1>
-            </CardTitle>
+          <Card className="bg-[#111114] border border-zinc-800 rounded-2xl overflow-hidden shadow-lg">
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="border-t-2 border-t-zinc-500 hover:bg-zinc-900">
-                  <TableRow className="bg-zinc-900">
-                    <TableHead className="text-white pl-4">Imagem</TableHead>
-                    <TableHead className="text-white">PRODUTO / MARCA</TableHead>
-                    <TableHead className="text-white">FORNECEDOR</TableHead>
-                    <TableHead className="text-white">PREÇO CUSTO</TableHead>
-                    <TableHead className="text-white">PREÇO UNIT.</TableHead>
-                    <TableHead className="text-white">QTD. ESTOQUE</TableHead>
-                    <TableHead className="text-white">MIN. ESTOQUE</TableHead>
-                    <TableHead className="text-white">AÇÕES</TableHead>
+                <TableHeader className="bg-[#0F0F10]">
+                  <TableRow className="border-b border-zinc-800 hover:bg-transparent">
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider pl-6">
+                      Imagem
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Produto / Marca
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Fornecedor
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Preço Custo
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Preço Unit.
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Estoque
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Min. Estoque
+                    </TableHead>
+                    <TableHead className="text-zinc-400 uppercase text-[11px] tracking-wider">
+                      Ações
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
                   {produtosFiltrados.map((produto) => (
-                    <TableRow key={produto.id}>
-                      <TableCell>
-                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden border border-zinc-700">
-                          <img src={produto.imagemUrl} alt={produto.descricao} className="w-full h-full object-cover" />
+                    <TableRow
+                      key={produto.id}
+                      className=" border-b border-zinc-800 hover:bg-zinc-900/40 transition-all
+            ">
+                      <TableCell className="pl-6 py-4">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden border border-zinc-700 bg-black flex items-center justify-center">
+                          {produto.imagemUrl ? (
+                            <img
+                              src={produto.imagemUrl}
+                              alt={produto.descricao}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-zinc-500 text-xs">
+                            </span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="text-white font-medium">{produto.descricao}</span>
-                          <span className="text-zinc-400 text-sm">{produto.marca}</span>
+                          <span className="text-white font-semibold text-sm">
+                            {produto.descricao}
+                          </span>
+                          <span className="text-zinc-400 text-xs mt-1">
+                            {produto.marca}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {produto.fornecedores?.map((vinculo) => (
-                          <div key={vinculo.id}>{vinculo.fornecedor.nomeFantasia}</div>
-                        ))}
+                        <div className="flex flex-col gap-1">
+                          {produto.fornecedores?.map((vinculo) => (
+                            <span
+                              key={vinculo.id}
+                              className="text-white text-sm"
+                            >
+                              {vinculo.fornecedor.nomeFantasia}
+                            </span>
+                          ))}
+                        </div>
                       </TableCell>
-                      <TableCell>R$ {produto.precoCusto.toFixed(2)}</TableCell>
-                      <TableCell>R$ {produto.precoUnitario.toFixed(2)}</TableCell>
-                      <TableCell>{produto.qtdEstoque}</TableCell>
-                      <TableCell>{produto.qtdMinima}</TableCell>
                       <TableCell>
-                        <div className="flex flex-row md:flex-col gap-2 p-1">
+                        <span className="text-zinc-300 font-medium">
+                          R$ {produto.precoCusto.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-orange-500 font-bold">
+                          R$ {produto.precoUnitario.toFixed(2)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`
+                  px-3 py-1 rounded-full text-xs font-semibold
+                  ${produto.qtdEstoque < produto.qtdMinima
+                              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                              : "bg-green-500/20 text-green-400 border border-green-500/30"
+                            }`}>
+                          {produto.qtdEstoque}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-zinc-400">
+                          {produto.qtdMinima}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
-                            className="background-sidebar cursor-pointer hover:border-orange-500 hover:text-orange-500"
+                            className="bg-transparent border-zinc-700 hover:border-orange-500 hover:text-orange-500 cursor-pointer text-white transition-all"
                             onClick={async () => {
-                              await abrirVer(produto.id)
-                              setOpenVer(true)
+                              await abrirVer(produto.id);
+                              setOpenVer(true);
                             }}
                           >
-                            <Eye />
+                            <Eye className="w-4 h-4" />
                           </Button>
-                          <Button className="bg-amber-500 cursor-pointer" onClick={async () => {
-                            await abrirEditar(produto.id)
-                            setOpenEditar(true)
-                          }}>
-                            <FilePenLine />
+                          <Button
+                            className="bg-amber-500 hover:bg-amber-600 text-white cursor-pointer transition-all"
+                            onClick={async () => {
+                              await abrirEditar(produto.id);
+                              setOpenEditar(true);
+                            }}
+                          >
+                            <FilePenLine className="w-4 h-4" />
                           </Button>
-                          <Button className="bg-red-500 cursor-pointer" onClick={async () => {
-                            await abrirDelete(produto.id)
-                            setOpenDelete(true)
-                          }}>
-                            <Trash2 />
+                          <Button
+                            className="bg-red-500 hover:bg-red-600 text-white  cursor-pointer transition-all"
+                            onClick={async () => {
+                              await abrirDelete(produto.id);
+                              setOpenDelete(true);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -434,17 +515,22 @@ export default function ProdutosPage() {
           </Card>
         </div>
       </div>
-      {/*Modal de visualizaçãp*/}
+      {/*Modal de visualização*/}
       <AlertDialog open={openVer} onOpenChange={setOpenVer}>
         <AlertDialogContent className="bg-zinc-900 border-zinc-700 !w-[98vw] !max-w-[98vw] md:!w-[90vw] md:!max-w-[90vw] lg:!w-[82vw] lg:!max-w-[82vw] max-h-[92vh] overflow-y-auto p-4 md:p-8">
           <AlertDialogHeader>
             <div className="flex flex-wrap items-center gap-4 pb-4 border-b border-zinc-700">
-              <div className="w-16 h-16 rounded-xl overflow-hidden border border-zinc-700 shrink-0">
-                <img
-                  src={produtoSelecionado?.imagemUrl}
-                  alt={produtoSelecionado?.descricao}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-16 h-16 rounded-xl overflow-hidden border border-zinc-700 shrink-0 bg-black flex items-center justify-center">
+                {produtoSelecionado?.imagemUrl ? (
+                  <img
+                    src={produtoSelecionado.imagemUrl}
+                    alt={produtoSelecionado.descricao}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-zinc-500 text-xs">
+                  </span>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <AlertDialogTitle className="text-white text-xl font-black truncate">

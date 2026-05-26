@@ -1,7 +1,7 @@
 "use client"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingCart, Users, Building2, TriangleAlert } from "lucide-react"
+import { Package, ShoppingCart, Users, Building2, TriangleAlert,ArrowBigUp  } from "lucide-react"
 import { getPedidosMes, getRecentes, getEstoqueCritico, getProdutosEmEstoque, getTotalClientes, getTotalFornecedores, getFornecedoresHoje, getPedidosHoje, getClientesHoje, getProdutosHoje } from "@/services/dashboardService"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -22,8 +22,8 @@ export default function DashBoardPage() {
 
   const router = useRouter()
 
-  function RegistarMovimentacao() {
-    router.push("/movimentacao")
+  function RegistarEntrada() {
+    router.push("/entradas")
   }
 
   const horario = new Date().toLocaleTimeString("pt-BR",
@@ -254,45 +254,76 @@ export default function DashBoardPage() {
         </div>
       </div>
       <div>
-        <div className="flex flex-wrap gap-4 p-13">
-          <div className="flex-3">
-            <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-zinc-500 h-100 overflow-y-auto">
-              <CardTitle className=" flex justify-between p-2 pl-4 -mt-2 pr-4">
-                <h1 className="text-white ">Pedidos Recentes</h1>
-                <h1 className="text-orange-400 "><a href="/pedidos"> Ver Todos</a></h1>
-              </CardTitle>
-              <Table>
-                <TableHeader className="border-t-2 border-t-zinc-500 hover:bg-zinc-900">
-                  <TableRow className="bg-zinc-900">
-                    <TableHead className="text-white pl-4">pedido</TableHead>
-                    <TableHead className="text-white ">cliente</TableHead>
-                    <TableHead className="text-white ">valor</TableHead>
-                    <TableHead className="text-white ">data</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentes.map((recentes) => (
-                    <TableRow key={recentes.id}>
-                      <TableCell className="text-orange-500">
-                        {recentes.numPedido}
-                      </TableCell>
-                      <TableCell>
-                        {recentes.cliente.nome}
-                      </TableCell>
-                      <TableCell>
-                        R$ {recentes.valorTotal}
-                      </TableCell>
-                      <TableCell>
-                        {recentes.dataHora}
-                      </TableCell>
+        <div className="flex flex-col xl:flex-row gap-4 p-4 xl:p-13">
+          <div className="w-full xl:flex-[3] min-w-0">
+            <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-orange-500 h-[420px] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-800 bg-[#0F0F10]">
+                <div>
+                  <h1 className="text-white text-xl font-bold">
+                    Todos os Pedidos
+                  </h1>
+                  <p className="text-zinc-500 text-sm mt-1">
+                    Últimos pedidos registrados no sistema
+                  </p>
+                </div>
+                <Button
+                  onClick={() => router.push("/pedidos")}
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold cursor-pointer">
+                  Ver Todos os Pedidos
+                </Button>
+              </div>
+              <div className="overflow-auto h-full">
+                 <Table  className="min-w-[700px]">
+                  <TableHeader className="bg-[#111114] sticky top-0 z-10">
+                    <TableRow className="border-b border-zinc-800 hover:bg-[#111114]">
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs pl-6">
+                        Pedido
+                      </TableHead>
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs">
+                        Cliente
+                      </TableHead>
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs">
+                        Valor
+                      </TableHead>
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs">
+                        Data
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentes.map((pedido) => (
+                      <TableRow
+                        key={pedido.id}
+                        className="border-b border-zinc-800 hover:bg-zinc-900/40 transition-all">
+                        <TableCell className="pl-6 font-semibold text-orange-500">
+                          PED-{pedido.numPedido}
+                        </TableCell>
+                        <TableCell className="text-white">
+                          {pedido?.cliente?.nomeRazaoSocial}
+                        </TableCell>
+                        <TableCell className="font-semibold text-white">
+                          {Number(pedido.valorTotal).toLocaleString(
+                            "pt-BR",
+                            {
+                              style: "currency",
+                              currency: "BRL",
+                            }
+                          )}
+                        </TableCell>
+                        <TableCell className="text-zinc-400">
+                          {new Date(
+                            pedido.createdAt
+                          ).toLocaleDateString("pt-BR")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </Card>
           </div>
-          <div className="flex-1">
-            <Card className="w2.5/10 h-100 background-sidebar border border-zinc-600 border-t-3 border-t-red-500">
+          <div className="w-full xl:flex-1">
+            <Card className="w2.5/10 h-105 background-sidebar border border-zinc-600 border-t-3 border-t-red-500">
               <CardHeader className=' border-b border-zinc-600 pb-4'>
                 <CardTitle className="flex justify-start gap-5">
                   <TriangleAlert className="text-red-500"></TriangleAlert>
@@ -326,8 +357,8 @@ export default function DashBoardPage() {
                   );
                 })}
               </CardContent>
-              <CardFooter className="background-sidebar">
-                <Button variant="outline" className="w-full background-sidebar cursor-pointer hover:border-orange-500 hover:text-orange-500 group" onClick={RegistarMovimentacao}><span className=" group-hover:text-orange-500 ">Registrar Movimentacao</span></Button>
+              <CardFooter className="background-sidebar mt-10">
+                <Button variant="outline" className="w-full background-sidebar cursor-pointer hover:border-orange-500 hover:text-orange-500 group" onClick={RegistarEntrada}><ArrowBigUp className="w-4 h-4 mr-2 group-hover:text-orange-500" /><span className=" group-hover:text-orange-500 ">Registrar Entrada</span></Button>
               </CardFooter>
             </Card>
           </div>

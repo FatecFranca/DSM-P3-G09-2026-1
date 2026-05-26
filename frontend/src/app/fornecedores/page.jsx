@@ -242,7 +242,7 @@ export default function FornecedoresPage() {
                 <div className="flex flex-wrap pt-3 pr-13 justify-between">
                     <h1 className="text-white text-3xl font-black">FORNECEDORES</h1>
                     <Button
-                        className="p-5 cursor-pointer bg-orange-500"
+                        className="bg-orange-500 hover:bg-orange-600 transition-all duration-200 p-5 rounded-lg font-semibold  shadow-lg shadow-orange-500/20"
                         onClick={() => { limparCampos(); setOpenCriar(true) }}
                     >
                         + Novo Fornecedor

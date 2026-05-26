@@ -97,66 +97,98 @@ export default function AdminPage() {
       </div>
       <div>
         <div className="flex flex-wrap gap-4 p-13">
-          <div className="flex-3">
-            <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-zinc-500 h-170 overflow-y-auto">
-              <CardTitle className=" flex justify-between p-2 pl-4 -mt-2 pr-4">
-                <h1 className="text-white ">Usuarios</h1>
-              </CardTitle>
-              <Table>
-                <TableHeader className="border-t-2 border-t-zinc-500 hover:bg-zinc-900">
-                  <TableRow className="bg-zinc-900">
-                    <TableHead className="text-white pl-4">nome</TableHead>
-                    <TableHead className="text-white ">email</TableHead>
-                    <TableHead className="text-white ">Data de Criacao</TableHead>
-                    <TableHead className="text-white ">Delete</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {usuarios.map((usuarios) => (
-                    <TableRow key={usuarios.id}>
-                      <TableCell className="text-orange-500">
-                        {usuarios.nome}
-                      </TableCell>
-                      <TableCell>
-                        {usuarios.email}
-                      </TableCell>
-                      <TableCell>
-                        <p>
-                          {new Date(usuarios.createdAt).toLocaleDateString("pt-BR")}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button className="bg-red-500 cursor-pointer">
-                              Delete
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-zinc-900 border-zinc-700">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-white">
-                                Tem certeza?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription className="text-zinc-400">
-                                Essa acao ira deletar o usuario permanente
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="bg-zinc-900 border-zinc-700">
-                              <AlertDialogCancel className="cursor-pointer">
-                                Cancelar
-                              </AlertDialogCancel>
-                              <AlertDialogAction className="bg-red-500 hover:bg-red-600 cursor-pointer" onClick={async () => { await deleteUsuario(usuarios.id)
-                                 await carregarUsuarios() }}>
-                                confirmar
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
+          <div className="flex-1">
+            <Card className="background-sidebar border border-zinc-600 border-t-3 border-t-orange-500 overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-800 bg-[#0F0F10]">
+                <div>
+                  <h1 className="text-white text-xl font-bold">
+                    Usuários do Sistema
+                  </h1>
+                  <p className="text-zinc-500 text-sm mt-1">
+                    Gerencie os usuários cadastrados
+                  </p>
+                </div>
+                <Button
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold cursor-pointer"
+                >
+                  {usuarios.length} usuários
+                </Button>
+              </div>
+              <div className="overflow-y-auto max-h-[700px]">
+                <Table>
+                  <TableHeader className="bg-[#111114] sticky top-0 z-10">
+                    <TableRow className="border-b border-zinc-800 hover:bg-[#111114]">
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs pl-6">
+                        Nome
+                      </TableHead>
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs">
+                        Email
+                      </TableHead>
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs">
+                        Data de Criação
+                      </TableHead>
+                      <TableHead className="text-zinc-400 uppercase tracking-wider text-xs text-right pr-6">
+                        Ações
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {usuarios.map((usuario) => (
+                      <TableRow
+                        key={usuario.id}
+                        className=" border-b border-zinc-800 hover:bg-zinc-900/40 transition-all"
+                      >
+                        <TableCell className="pl-6 font-semibold text-orange-500">
+                          {usuario.nome}
+                        </TableCell>
+                        <TableCell className="text-white">
+                          {usuario.email}
+                        </TableCell>
+                        <TableCell className="text-zinc-400">
+                          {new Date(
+                            usuario.createdAt
+                          ).toLocaleDateString("pt-BR")}
+                        </TableCell>
+                        <TableCell className="pr-6 text-right">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                className="bg-red-500/15 hover:bg-red-500 text-red-400  hover:text-white border border-red-500/30 cursor-pointer transition-all"
+                              >
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-zinc-900 border-zinc-700">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-white">
+                                  Tem certeza?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="text-zinc-400">
+                                  Essa ação irá deletar o usuário permanentemente.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter className="bg-zinc-900 border-zinc-700">
+                                <AlertDialogCancel className="cursor-pointer">
+                                  Cancelar
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  className=" bg-red-500 hover:bg-red-600 cursor-pointer"
+                                  onClick={async () => {
+                                    await deleteUsuario(usuario.id)
+                                    await carregarUsuarios()
+                                  }}
+                                >
+                                  Confirmar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </Card>
           </div>
         </div>
