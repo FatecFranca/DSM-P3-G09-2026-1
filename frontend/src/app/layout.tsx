@@ -25,7 +25,7 @@ const rajdhani = Rajdhani({
 });
 
 export const metadata: Metadata = {
-  title: "Auto Stock Control",
+  title: "Estokai — Controle de Estoque Inteligente",
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 import { Card, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
-import logo from "@/assets/autoStockLogo.png"
+import logo from "@/assets/estokai_logo_final.svg"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { LoginSidebar } from "@/components/login-sidebar"
 
@@ -12,10 +12,10 @@ export default function LoginPage() {
         <div>
           <Image
             src={logo}
-            alt="AutoStock Logo"
-            width={180}
-            height={180}
-            className="w-32 md:w-40 lg:w-44"
+            alt="Estokai Logo"
+            width={300}
+            height={300}
+            className="w-56 md:w-100 lg:w-80"
           />
           <div className="mt-10 lg:mt-24 max-w-2xl">
             <h3 className="text-orange-400 text-xs tracking-[0.3em] font-semibold uppercase">
@@ -52,7 +52,7 @@ export default function LoginPage() {
         </div>
         <div className="mt-10 lg:mt-0">
           <h1 className="text-zinc-700 text-sm">
-            © 2026 AutoStock Pro · Todos os direitos reservados
+            © 2026 Estokai · Todos os direitos reservados
           </h1>
         </div>
       </div>
