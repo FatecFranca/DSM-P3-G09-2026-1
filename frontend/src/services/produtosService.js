@@ -1,7 +1,11 @@
 import  api  from "./api"
 
-export async function getProdutos() {
-  const response = await api.get("/produtos")
+export async function getProdutos(params) {
+  if (!params) {
+    const response = await api.get("/produtos")
+    return response.data.data ?? response.data
+  }
+  const response = await api.get("/produtos", { params })
   return response.data
 }
 
@@ -63,4 +67,4 @@ export async function uploadImagemProduto(produtoId,imagem) {
     }
   )
   return response.data
-} 
+}

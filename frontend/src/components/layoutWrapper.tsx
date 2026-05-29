@@ -1,18 +1,15 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-
-import {
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-
+import { ReactNode } from "react"
+import {SidebarProvider} from "@/components/ui/sidebar";
+import {CustomSidebarTrigger} from "@/components/CustomSidebarTrigger"
 import { AppSidebar } from "@/components/app-sidebar";
 
 export function LayoutWrapper({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
 
   const pathname = usePathname();
@@ -42,7 +39,9 @@ export function LayoutWrapper({
         overflow-x-hidden
       ">
 
-        <SidebarTrigger />
+        <div className="p-4 lg:p-6 pb-0">
+          <CustomSidebarTrigger />
+        </div>
 
         {children}
 

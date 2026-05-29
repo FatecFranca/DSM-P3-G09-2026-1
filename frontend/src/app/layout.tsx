@@ -1,16 +1,10 @@
-import type { Metadata }
-  from "next";
-
-import {
-  Inter,
-  Rajdhani
-} from "next/font/google";
-
+import type { Metadata } from "next";
+import { ReactNode } from "react";
+import { Inter, Rajdhani } from "next/font/google";
 import "./globals.css";
-
-import {
-  LayoutWrapper
-} from "@/components/layoutWrapper";
+import { LayoutWrapper } from "@/components/layoutWrapper";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider"; 
 
 const inter = Inter({
   weight: ["300", "400", "500", "600"],
@@ -31,27 +25,35 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
-
   return (
     <html
       lang="pt-BR"
-      className={`
-        ${inter.variable}
-        ${rajdhani.variable}
-      `}
+      className={`${inter.variable} ${rajdhani.variable}`}
+      suppressHydrationWarning 
     >
       <body
         className={`
           ${inter.className}
-          text-zinc-300
+          bg-background
+          text-foreground
           antialiased
+          transition-colors duration-300
         `}
       >
-        <LayoutWrapper>
-          {children}
-        </LayoutWrapper>
+        {/* Envolva a aplicação com o ThemeProvider indicando a classe 'dark' */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
+          <Toaster richColors closeButton position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

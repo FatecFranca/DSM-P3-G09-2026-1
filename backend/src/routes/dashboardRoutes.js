@@ -1,14 +1,12 @@
-import { Router } from "express";
-import * as dashboardControllers from "../controllers/dashboardControllers.js";
-import {authMiddleware} from "../middlewares/authMiddleware.js"
+import express from 'express';
+// Importe a função que acabamos de criar
+import { getDashboardResumoCompleto } from '../controllers/dashboardControllers.js';
+// Importe seu middleware de autenticação se houver (para garantir req.usuario)
+import { authMiddleware } from '../middlewares/authMiddleware.js'; 
 
-const router = Router();
+const router = express.Router();
 
-router.get('/recents',authMiddleware,dashboardControllers.recents);
-router.get('/estoque-critico',authMiddleware,dashboardControllers.estoqueCritico);
-router.get('/produto-em-estoque',authMiddleware,dashboardControllers.produtoEmEstoque);
-router.get('/clientes',authMiddleware,dashboardControllers.clientes);
-router.get('/fornecedores',authMiddleware,dashboardControllers.fornecedores);
-router.get('/pedidos-mes',authMiddleware,dashboardControllers.pedidosMes);
+// Cria a rota única
+router.get('/resumo', authMiddleware, getDashboardResumoCompleto);
 
-export default router;  
+export default router;

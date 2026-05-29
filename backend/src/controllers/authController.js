@@ -30,6 +30,7 @@ export async function register(req, res) {
       email: usuario.email
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({
       error: error.message
     })
@@ -78,6 +79,7 @@ export async function login(req, res) {
       }
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({
       error: "Erro ao fazer login"
     })

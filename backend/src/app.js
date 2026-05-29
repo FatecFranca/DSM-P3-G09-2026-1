@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 import clientesRoutes from './routes/clientesRoutes.js';
 import fornecedoresRoutes from './routes/fornecedoresRoutes.js';
 import produtosRoutes from './routes/produtosRoutes.js';
@@ -11,19 +12,33 @@ import adminRoutes from "./routes/adminRoutes.js"
 
 const app = express();
 
-app.use(express.json());
+app.use(compression()); // Comprime respostas (gzip, brotli)
+app.use(express.json({ limit: '10mb' })); // Limita tamanho do payload
 
+// Middleware de cache simples
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'private, no-cache')
+  } else {
+    res.setHeader('Cache-Control', 'no-store')
+  }
+  next()
+})
 app.use(cors({
-    origin: ['http://localhost:3000',
-             "https://SEU-FRONT.vercel.app"
-    ],
-    credentials: true
+  origin: ['http://localhost:3000',
+    'https://estokai-ll6q.vercel.app'
+  ],
+  credentials: true
 }));
+
+// Health check endpoint
 app.get('/', (req, res) => {
-    res.json({
-        message: 'API funcionando'
-    });
+  res.json({
+    message: 'API funcionando',
+    timestamp: new Date().toISOString()
+  });
 });
+
 app.use('/clientes', clientesRoutes);
 app.use('/fornecedores', fornecedoresRoutes);
 app.use('/produtos', produtosRoutes);
@@ -32,5 +47,20 @@ app.use('/dashboard', dashboardRoutes);
 app.use('/movimentacoes', movimentacoesRoutes);
 app.use("/auth", authRoutes)
 app.use("/admin", adminRoutes)
+
+// Middleware de erro global
+app.use((err, req, res, next) => {
+  console.error('Erro:', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Erro interno do servidor',
+    timestamp: new Date().toISOString()
+  });
+});
+
+if (process.env.NODE_ENV === 'production') {
+  console.log = function () {};
+  console.warn = function () {};
+  console.error = function () {}; 
+}
 
 export default app;

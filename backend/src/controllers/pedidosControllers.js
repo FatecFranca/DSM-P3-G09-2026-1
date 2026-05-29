@@ -1,33 +1,67 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../lib/prisma.js'
 import { registrarSaida, atualizarSaida, cancelarSaida } from '../services/movimentacaoService.js'
-
-const prisma = new PrismaClient()
 
 export const retrieveAll = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 8 
+    const search = req.query.search || ""
+    const skip = (page - 1) * limit
 
-    const pedido = await prisma.pedido.findMany({
-      where: {
-        usuarioId: req.usuario.id
-      },
-      include: {
-        cliente: true,
-        itens: {
-          include: {
-            produto: true
+    const whereCondition = {
+      usuarioId: req.usuario.id
+    }
+
+    // Regra de busca dinâmica
+    if (search) {
+      const searchNum = parseInt(search.replace(/\D/g, ''))
+
+      whereCondition.OR = [
+        // Busca pelo nome do cliente
+        { cliente: { nomeRazaoSocial: { contains: search, mode: 'insensitive' } } }
+      ]
+
+      // Se o usuário digitou algum número, adiciona a busca pelo numPedido
+      if (!isNaN(searchNum)) {
+        whereCondition.OR.push({ numPedido: searchNum })
+      }
+    }
+
+    const [pedidos, total] = await Promise.all([
+      prisma.pedido.findMany({
+        where: whereCondition,
+        include: {
+          cliente: {
+            select: { id: true, nomeRazaoSocial: true, cpfCnpj: true }
+          },
+          itens: {
+            select: {
+              id: true, numItem: true, quantidade: true, valorUnitario: true, valorTotal: true, produtoId: true,
+              produto: { select: { id: true, descricao: true, marca: true } }
+            }
           }
-        }
-      },
-      orderBy: {
-        createdAt: "desc"
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.pedido.count({
+        where: whereCondition 
+      })
+    ])
+
+    res.json({
+      data: pedidos,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
       }
     })
-    res.json(pedido)
   } catch (error) {
     console.error(error)
-    res.status(500).json({
-      error: error.message
-    })
+    res.status(500).json({ error: error.message })
   }
 }
 
@@ -135,7 +169,6 @@ export const create = async (req, res) => {
         numPedido: "desc"
       }
     })
-    // incrementa automaticamente
     const proximoNumero = ultimoPedido
       ? ultimoPedido.numPedido + 1
       : 1
@@ -156,7 +189,7 @@ export const create = async (req, res) => {
       error: error.message
     })
   }
-} 
+}
 
 export const retrieveOne = async (req, res) => {
   try {

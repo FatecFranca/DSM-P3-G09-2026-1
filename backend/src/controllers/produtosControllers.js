@@ -1,13 +1,57 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '../lib/prisma.js'
 
 export const retrieveAll = async (req, res) => {
   try {
-    const produto = await prisma.produto.findMany({
-      where: { usuarioId: req.usuario.id }, include: { fornecedores: { include: { fornecedor: true } } }
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const search = req.query.search || ""
+    const skip = (page - 1) * limit
+
+    const whereCondition = {
+      usuarioId: req.usuario.id,
+      ...(search && {
+        OR: [
+          { descricao: { contains: search, mode: 'insensitive' } },
+          { marca: { contains: search, mode: 'insensitive' } }
+        ]
+      })
+    }
+
+    const [produtos, total] = await Promise.all([
+      prisma.produto.findMany({
+        where: whereCondition, 
+        include: {
+          fornecedores: {
+            select: {
+              precoUltimaCompra: true,
+              fornecedor: {
+                select: {
+                  id: true,
+                  nomeFantasia: true,
+                  razaoSocial: true
+                }
+              }
+            }
+          }
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'asc' } 
+      }),
+      prisma.produto.count({
+        where: whereCondition 
+      })
+    ])
+
+    res.json({
+      data: produtos,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
     })
-    res.json(produto)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -78,8 +122,6 @@ export const create = async (req, res) => {
         usuarioId: req.usuario.id
       }
     })
-    console.log("BODY:", req.body)
-    console.log("FILE:", req.file)
     res.json(produto)
   } catch (error) {
     console.error(error)
@@ -97,7 +139,14 @@ export const retrieveOne = async (req, res) => {
       where: {
         id,
         usuarioId: req.usuario.id
-      }, include: { fornecedores: { include: { fornecedor: true } } }
+      },
+      include: {
+        fornecedores: {
+          include: {
+            fornecedor: true
+          }
+        }
+      }
     })
     res.json(produto)
   } catch (error) {

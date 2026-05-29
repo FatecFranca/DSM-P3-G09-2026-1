@@ -1,243 +1,211 @@
 <div align="center">
 
-# 🗃️ Sistema de Controle de Estoque e Pedidos
+# 📦 Estokai
 
-<p>
-  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white"/>
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white"/>
-  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
-  <img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"/>
-</p>
+**Sistema de controle de estoque para microempresas**
 
-<p>
-  <img src="https://img.shields.io/badge/Status-Concluído-success?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Tipo-Projeto%20Acadêmico-blue?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Semestre-DSM%202026%2F1-orange?style=for-the-badge"/>
-</p>
-
-> Plataforma fullstack moderna para gestão completa de estoque, pedidos e operações comerciais — com autenticação segura, dashboard administrativo e controle automático de inventário.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express%205-339933?logo=nodedotjs)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Prisma%20ORM-47A248?logo=mongodb)](https://www.mongodb.com/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://estokai-ll6q.vercel.app)
+[![License](https://img.shields.io/badge/license-Proprietária-red)](LICENSE.md)
 
 </div>
 
 ---
 
-## 👨‍💻 Desenvolvedores
-
-| Nome | GitHub |
-|------|--------|
-| Guilherme Porto de Melo Junqueira | [@guilherme](https://github.com/GuiPorto20) |
-| Leonardo Centeno Bonamin | [@leonardo](https://github.com/LeonardoBonamin) |
+> **⚠️ Aviso de Direitos Autorais:** Este repositório encontra-se público estritamente para servir como portfólio técnico e demonstração de arquitetura de software. O código-fonte aqui presente pertence a um produto comercial e **não é de código aberto (open-source)**. A cópia, distribuição, clonagem, modificação ou utilização comercial deste software é expressamente proibida sem autorização prévia. Consulte o arquivo `LICENSE.md` para obter todos os detalhes legais.
 
 ---
 
-## 📌 Sobre o Projeto
+## Sobre o projeto
 
-Este sistema foi desenvolvido como Projeto Interdisciplinar do 3º semestre do curso de **Desenvolvimento de Software Multiplataforma (DSM)**. O objetivo foi construir uma solução fullstack real, aplicando conceitos de arquitetura em camadas, segurança com JWT, integração com banco de dados NoSQL e boas práticas de desenvolvimento.
-
-A aplicação permite gerenciar produtos, clientes, fornecedores e pedidos, com controle automático de estoque via transações atômicas, autenticação protegida por cookies HttpOnly e um dashboard administrativo completo.
+O **Estokai** é uma aplicação web full-stack voltada para o gerenciamento de estoque de microempresas. Com ele é possível cadastrar produtos, fornecedores e clientes, registrar pedidos com baixa automática de estoque, acompanhar movimentações e visualizar um dashboard com os principais indicadores do negócio — tudo com suporte a tema claro/escuro e autenticação segura por JWT.
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-### 📦 Produtos
-- CRUD completo
-- Upload de imagens via Cloudinary
-- Controle automático de estoque
-- Associação com fornecedores
-
-### 👥 Clientes
-- Cadastro e gerenciamento completo
-- Histórico de pedidos por cliente
-
-### 🏢 Fornecedores
-- Gestão completa de fornecedores
-- Associação com produtos cadastrados
-
-### 🧾 Pedidos
-- Criação com múltiplos itens
-- Cálculo automático do valor total
-- Baixa automática no estoque ao confirmar
-- Reposição automática ao cancelar
-- Validação de estoque insuficiente
-
-### 📉 Movimentações de Estoque
-- Registro de entradas e saídas
-- Histórico completo de movimentações
-
-### 📊 Dashboard Administrativo
-- Pedidos recentes
-- Alertas de estoque crítico
-- Totalizadores: produtos, clientes, fornecedores
-- Pedidos do mês
-
-### 🔐 Autenticação e Segurança
-- Login com JWT + Cookies HttpOnly
-- Middleware de autenticação no backend
-- Middleware de admin para rotas restritas
-- Proteção de rotas no frontend (Next.js Middleware)
-- Controle de permissões por nível de usuário
+- **Dashboard** — visão geral com KPIs do dia e do mês: produtos cadastrados, pedidos, clientes, fornecedores, estoque crítico e pedidos recentes
+- **Produtos** — CRUD completo com upload de imagem (Cloudinary), preço de custo/venda, quantidade em estoque e quantidade mínima configurável
+- **Pedidos** — criação e edição de pedidos com múltiplos itens, formas de pagamento e controle de status; movimentação de estoque automática na criação/alteração/cancelamento
+- **Clientes** — cadastro de pessoas físicas e jurídicas com suporte a CPF/CNPJ, endereço completo e múltiplos contatos
+- **Fornecedores** — cadastro com CNPJ, categorias e vinculação de produtos com registro do preço da última compra
+- **Movimentações** — histórico completo de entradas e saídas com justificativa, rastreável por produto ou por pedido
+- **Autenticação** — registro e login com senha hasheada (bcrypt), token JWT via cookie (7 dias) e proteção de rotas no Next.js middleware
+- **Painel Admin** — gerenciamento de usuários da plataforma (listar e remover)
+- **Tema escuro/claro** — suporte nativo via `next-themes`
 
 ---
 
-## 🧱 Stack Tecnológica
+## Stack
 
-### 🎨 Frontend
+### Frontend
 | Tecnologia | Uso |
 |---|---|
-| Next.js (App Router) | Framework principal |
-| React | UI |
-| TailwindCSS | Estilização |
-| shadcn/ui | Componentes de interface |
+| Next.js 16 + React 19 | Framework principal e renderização |
+| TypeScript | Tipagem estática |
+| Tailwind CSS v4 | Estilização |
+| shadcn/ui + Radix UI | Componentes de interface |
+| Framer Motion | Animações |
+| TanStack Table | Tabelas com paginação e ordenação |
+| React Hook Form + Zod | Formulários com validação |
 | Axios | Requisições HTTP |
-| Lucide Icons | Ícones |
+| Sonner | Notificações toast |
 
-### ⚙️ Backend
+### Backend
 | Tecnologia | Uso |
 |---|---|
-| Node.js | Runtime |
-| Express 5.x | Framework HTTP |
-| Prisma ORM 6.x | Acesso ao banco de dados |
-| MongoDB Atlas | Banco de dados |
-| JWT + Cookies HttpOnly | Autenticação segura |
-| Cloudinary | Armazenamento de imagens |
-| Multer | Upload de arquivos |
+| Node.js + Express 5 | API REST |
+| Prisma ORM | Acesso ao banco de dados |
+| MongoDB | Banco de dados |
+| JSON Web Token | Autenticação |
+| bcrypt | Hash de senhas |
+| Cloudinary + Multer | Upload de imagens |
+| compression | Compressão gzip/brotli das respostas |
 
 ---
-
-## 🗂️ Estrutura do Projeto
+## Estrutura do projeto
 
 ```
-project/
-│
+estokai/
 ├── backend/
 │   ├── prisma/
-│   │   └── schema.prisma
+│   │   └── schema.prisma          # Modelos: Usuario, Produto, Pedido, Cliente, Fornecedor, Movimentacao
 │   └── src/
-│       ├── config/
-│       │   └── cloudinary.js
-│       ├── controllers/
-│       │   ├── clientesControllers.js
-│       │   ├── fornecedoresControllers.js
-│       │   ├── produtosControllers.js
-│       │   ├── pedidosControllers.js
-│       │   ├── dashboardControllers.js
-│       │   └── movimentacoesControllers.js
-│       ├── middlewares/
-│       │   ├── authMiddleware.js
-│       │   ├── adminMiddleware.js
-│       │   └── uploadMiddleware.js
-│       ├── routes/
-│       │   └── ...
-│       ├── services/
-│       │   ├── movimentacaoService.js
-│       │   └── uploadService.js
-│       └── server.js
+│       ├── controllers/           # Lógica de cada recurso
+│       ├── routes/                # Endpoints da API
+│       ├── services/              # Regras de negócio (ex: movimentação de estoque)
+│       ├── middlewares/           # authMiddleware, adminMiddleware, uploadMiddleware
+│       ├── config/                # Configuração do Cloudinary
+│       └── app.js                 # Express app com CORS, compressão e tratamento de erros
 │
-└── frontend/
-    └── src/
-        ├── app/
-        ├── components/
-        ├── hooks/
-        ├── lib/
-        ├── services/
-        └── middleware.js
+├── frontend/
+│   └── src/
+│       ├── app/                   # Páginas (App Router): dashboard, produtos, pedidos, clientes, fornecedores, movimentacao, admin, login
+│       ├── components/            # Componentes reutilizáveis e modais por entidade
+│       ├── services/              # Camada de comunicação com a API
+│       ├── hooks/                 # Hooks customizados
+│       └── middleware.js          # Proteção de rotas via cookie JWT
+│
+└── docs/
+    ├── DIAGRAMA *.png / .svg      # Diagrama de entidades
+    └── DOCUMENTO COMPLEMENTAR.pdf # Documentação técnica complementar
 ```
 
 ---
 
-## ⚡ Controle de Estoque
+## Pré-requisitos
 
-O sistema realiza automaticamente, via **transações atômicas do Prisma**:
-
-- Baixa no estoque ao criar itens de pedido
-- Reposição ao cancelar pedidos
-- Atualização inteligente ao alterar quantidades
-- Validação de estoque insuficiente antes de confirmar
+- Node.js >= 18
+- Uma instância de MongoDB (local ou [MongoDB Atlas](https://www.mongodb.com/atlas))
+- Conta no [Cloudinary](https://cloudinary.com/) para upload de imagens
 
 ---
 
-## 🚀 Instalação e Execução
-
-### Pré-requisitos
-- Node.js 22.x
-- Conta no MongoDB Atlas
-- Conta no Cloudinary
+## Instalação e execução
 
 ### 1. Clone o repositório
 
 ```bash
-git clone URL_DO_REPOSITORIO
-cd projeto
+git clone https://github.com/GuiPorto20/estokai.git
+cd estokai
 ```
 
-### 2. Configure e rode o Backend
+### 2. Configure o backend
 
 ```bash
 cd backend
 npm install
 ```
 
-Crie o arquivo `.env`:
+Crie o arquivo `.env` dentro de `backend/`:
 
 ```env
-DATABASE_URL="mongodb+srv://usuario:senha@cluster.mongodb.net/database"
-
-JWT_SECRET=sua_chave_secreta_aqui
-
-CLOUDINARY_CLOUD_NAME=seu_cloud_name
-CLOUDINARY_API_KEY=sua_api_key
-CLOUDINARY_API_SECRET=seu_api_secret
-
-PORT=3000
+DATABASE_URL="mongodb+srv://<usuario>:<senha>@<cluster>.mongodb.net/<banco>"
+JWT_SECRET="sua_chave_secreta_aqui"
+CLOUDINARY_CLOUD_NAME="seu_cloud_name"
+CLOUDINARY_API_KEY="sua_api_key"
+CLOUDINARY_API_SECRET="seu_api_secret"
+NODE_ENV="development"
 ```
 
-Execute os comandos do Prisma:
+Execute as migrations e inicie o servidor:
 
 ```bash
 npx prisma generate
-npx prisma db push
+npm run dev        # desenvolvimento (nodemon)
+# ou
+npm start          # produção
 ```
 
-Inicie o servidor:
+O servidor sobe em `http://localhost:3001` por padrão.
+
+### 3. Configure o frontend
 
 ```bash
-npm run dev
-```
-
-### 3. Configure e rode o Frontend
-
-```bash
-cd frontend
+cd ../frontend
 npm install
+```
+
+Crie o arquivo `.env.local` dentro de `frontend/`:
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+```
+
+Inicie o servidor de desenvolvimento:
+
+```bash
 npm run dev
 ```
 
----
-
-## 📋 Scripts Disponíveis
-
-### Backend
-| Script | Função |
-|---|---|
-| `npm run dev` | Executa em modo desenvolvimento |
-| `npm start` | Executa em produção |
-| `npx prisma generate` | Gera o Prisma Client |
-| `npx prisma db push` | Aplica o schema no banco |
-
-### Frontend
-| Script | Função |
-|---|---|
-| `npm run dev` | Executa em modo desenvolvimento |
-| `npm run build` | Gera o build de produção |
-| `npm start` | Executa o build gerado |
+Acesse `http://localhost:3000`.
 
 ---
 
-## 📄 Licença
+## Endpoints principais da API
 
-Este projeto foi desenvolvido para fins acadêmicos no curso de **Desenvolvimento de Software Multiplataforma — FATEC**.
+| Método | Rota | Descrição |
+|---|---|---|
+| `POST` | `/auth/register` | Cadastro de usuário |
+| `POST` | `/auth/login` | Login e geração de token |
+| `GET` | `/dashboard` | Resumo completo para o dashboard |
+| `GET/POST` | `/produtos` | Listar e criar produtos |
+| `PUT/DELETE` | `/produtos/:id` | Editar e remover produto |
+| `POST` | `/produtos/:id/fornecedor` | Vincular fornecedor a produto |
+| `GET/POST` | `/pedidos` | Listar e criar pedidos |
+| `PUT/DELETE` | `/pedidos/:id` | Editar e cancelar pedido |
+| `GET/POST` | `/clientes` | Listar e criar clientes |
+| `GET/POST` | `/fornecedores` | Listar e criar fornecedores |
+| `GET` | `/movimentacoes` | Histórico de movimentações |
+| `GET` | `/admin` | Gerenciamento de usuários (admin only) |
+
+> Todas as rotas, exceto `/auth/*`, exigem o header `Authorization: Bearer <token>` ou cookie `token`.
 
 ---
+
+## Deploy
+
+Para deploy do backend, o `app.js` já está preparado para ambiente de produção — logs são suprimidos automaticamente quando `NODE_ENV=production`.
+
+---
+
+## Documentação adicional
+
+A pasta `docs/` contém:
+- Diagrama de entidades do banco de dados (`.png`, `.svg` e `.xml` editável no draw.io)
+- Documento complementar com especificações técnicas do sistema (`.pdf`)
+
+---
+
+## Licença
+
+Distribuído sob a licença MIT. Veja [`LICENSE`](LICENSE) para mais informações.
+
+---
+
+<div align="center">
+  Feito por <a href="https://github.com/GuiPorto20">Guilherme Porto</a>
+</div>

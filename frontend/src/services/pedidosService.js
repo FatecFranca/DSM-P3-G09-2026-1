@@ -1,7 +1,11 @@
 import  api  from "./api"
 
-export async function getPedidos() {
-  const response = await api.get("/pedidos")
+export async function getPedidos(params) {
+  if (!params) {
+    const response = await api.get("/pedidos")
+    return response.data.data ?? response.data
+  }
+  const response = await api.get("/pedidos", { params })
   return response.data
 }
 
