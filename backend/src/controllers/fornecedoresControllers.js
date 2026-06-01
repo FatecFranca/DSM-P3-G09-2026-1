@@ -4,11 +4,46 @@ const prisma = new PrismaClient()
 
 export const retrieveAll = async (req, res) => {
   try {
-    const fornecedor = await prisma.fornecedor.findMany({
-      where: { usuarioId: req.usuario.id },
-      include: { _count: { select: { produtos: true } } }
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 8 
+    const search = req.query.search || ""
+    const skip = (page - 1) * limit
+
+    const whereCondition = {
+      usuarioId: req.usuario.id
+    }
+
+    if (search) {
+      whereCondition.OR = [
+        { razaoSocial: { contains: search, mode: 'insensitive' } },
+        { nomeFantasia: { contains: search, mode: 'insensitive' } },
+        { cnpj: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } }
+      ]
+    }
+
+    const [fornecedores, total] = await Promise.all([
+      prisma.fornecedor.findMany({
+        where: whereCondition,
+        include: { _count: { select: { produtos: true } } },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.fornecedor.count({
+        where: whereCondition
+      })
+    ])
+
+    res.json({
+      data: fornecedores,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
     })
-    res.json(fornecedor)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error.message })
@@ -21,16 +56,6 @@ export const update = async (req, res) => {
     const { razaoSocial, nomeFantasia, cnpj, email, logradouro, numImovel, complemento, bairro, municipio, uf, cep, telefone1, telefone2, categoria } = req.body
     if (!id) {
       return res.status(400).json({ erro: "O id do fornecedor é obrigatório!" })
-    }
-    const consulta = await prisma.fornecedor.findFirst({
-      where: {
-        cnpj,
-        usuarioId: req.usuario.id,
-        NOT: { id }
-      }
-    })
-    if (consulta) {
-      return res.status(400).json({ erro: "Ja existe um fornecedor com este cnpj" })
     }
     const fornecedorExiste = await prisma.fornecedor.findFirst({
       where: { id, usuarioId: req.usuario.id }
@@ -68,15 +93,6 @@ export const create = async (req, res) => {
   try {
     const { razaoSocial, nomeFantasia, cnpj, email, logradouro, numImovel, complemento, bairro, municipio, uf, cep, telefone1, telefone2, categoria } = req.body
 
-    const consulta = await prisma.fornecedor.findFirst({
-      where: {
-        cnpj,
-        usuarioId: req.usuario.id
-      }
-    })
-    if (consulta) {
-      return res.status(400).json({ erro: "Ja existe um fornecedor com este cnpj" })
-    }
     const fornecedor = await prisma.fornecedor.create({
       data: {
         razaoSocial,

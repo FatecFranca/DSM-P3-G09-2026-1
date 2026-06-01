@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server"
+import { DEFAULT_AUTH_REDIRECT, PUBLIC_ROUTES } from "./config/routes"
 
 export function middleware(request) {
   const token = request.cookies.get("token")
   const pathname = request.nextUrl.pathname
-  const publicRoutes = [
-    "/login"
-  ]
-  const isPublicRoute = publicRoutes.includes(pathname)
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname)
   if (!token && !isPublicRoute) {
     return NextResponse.redirect(
       new URL("/login", request.url)
@@ -14,7 +12,7 @@ export function middleware(request) {
   }
   if (token && pathname === "/login") {
     return NextResponse.redirect(
-      new URL("/dashboard", request.url)
+      new URL(DEFAULT_AUTH_REDIRECT, request.url)
     )
   }
   return NextResponse.next()

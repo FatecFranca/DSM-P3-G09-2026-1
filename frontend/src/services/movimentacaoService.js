@@ -1,7 +1,11 @@
 import  api  from "./api"
 
-export async function getMovimentacoes() {
-  const response = await api.get("/movimentacoes")
+export async function getMovimentacoes(params) {
+  if (!params) {
+    const response = await api.get("/movimentacoes")
+    return response.data.data ?? response.data
+  }
+  const response = await api.get("/movimentacoes", { params })
   return response.data
 }
 

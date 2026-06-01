@@ -1,33 +1,67 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../lib/prisma.js'
 import { registrarSaida, atualizarSaida, cancelarSaida } from '../services/movimentacaoService.js'
-
-const prisma = new PrismaClient()
 
 export const retrieveAll = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 8 
+    const search = req.query.search || ""
+    const skip = (page - 1) * limit
 
-    const pedido = await prisma.pedido.findMany({
-      where: {
-        usuarioId: req.usuario.id
-      },
-      include: {
-        cliente: true,
-        itens: {
-          include: {
-            produto: true
+    const whereCondition = {
+      usuarioId: req.usuario.id
+    }
+
+    // Regra de busca dinâmica
+    if (search) {
+      const searchNum = parseInt(search.replace(/\D/g, ''))
+
+      whereCondition.OR = [
+        // Busca pelo nome do cliente
+        { cliente: { nomeRazaoSocial: { contains: search, mode: 'insensitive' } } }
+      ]
+
+      // Se o usuário digitou algum número, adiciona a busca pelo numPedido
+      if (!isNaN(searchNum)) {
+        whereCondition.OR.push({ numPedido: searchNum })
+      }
+    }
+
+    const [pedidos, total] = await Promise.all([
+      prisma.pedido.findMany({
+        where: whereCondition,
+        include: {
+          cliente: {
+            select: { id: true, nomeRazaoSocial: true, cpfCnpj: true }
+          },
+          itens: {
+            select: {
+              id: true, numItem: true, quantidade: true, valorUnitario: true, valorTotal: true, produtoId: true,
+              produto: { select: { id: true, descricao: true, marca: true } }
+            }
           }
-        }
-      },
-      orderBy: {
-        createdAt: "desc"
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.pedido.count({
+        where: whereCondition 
+      })
+    ])
+
+    res.json({
+      data: pedidos,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
       }
     })
-    res.json(pedido)
   } catch (error) {
     console.error(error)
-    res.status(500).json({
-      error: error.message
-    })
+    res.status(500).json({ error: error.message })
   }
 }
 
@@ -38,6 +72,7 @@ export const update = async (req, res) => {
       status,
       formaPagamento
     } = req.body
+    
     const pedido = await prisma.pedido.findFirst({
       where: {
         id,
@@ -47,11 +82,13 @@ export const update = async (req, res) => {
         itens: true
       }
     })
+    
     if (!pedido) {
       return res.status(404).json({
         error: "Pedido não encontrado"
       })
     }
+    
     // DEVOLVER ESTOQUE AO CANCELAR
     if (
       status === "Cancelado" &&
@@ -94,16 +131,30 @@ export const update = async (req, res) => {
         })
       }
     }
+
+    // === LÓGICA DO CARIMBO DE DATA DE CONCLUSÃO ===
+    const dadosAtualizacao = {
+      status,
+      formaPagamento
+    }
+
+    // Se o status está mudando para Concluído agora, grava a data atual
+    if (status === "Concluído" && pedido.status !== "Concluído") {
+      dadosAtualizacao.concluidoEm = new Date()
+    } 
+    // Se o status for alterado para qualquer outra coisa (ex: voltou para Pendente), remove a data
+    else if (status !== "Concluído") {
+      dadosAtualizacao.concluidoEm = null
+    }
+
     const pedidoAtualizado =
       await prisma.pedido.update({
         where: {
           id
         },
-        data: {
-          status,
-          formaPagamento
-        }
+        data: dadosAtualizacao // Passa o objeto tratado dinamicamente
       })
+      
     return res.json(pedidoAtualizado)
   } catch (error) {
     console.error(error)
@@ -135,7 +186,6 @@ export const create = async (req, res) => {
         numPedido: "desc"
       }
     })
-    // incrementa automaticamente
     const proximoNumero = ultimoPedido
       ? ultimoPedido.numPedido + 1
       : 1
@@ -156,7 +206,7 @@ export const create = async (req, res) => {
       error: error.message
     })
   }
-} 
+}
 
 export const retrieveOne = async (req, res) => {
   try {
@@ -400,5 +450,96 @@ export const getDia = async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ erro: error.message })
+  }
+};
+
+export const getRelatorioDia = async (req, res) => {
+  try {
+    const { dataInicio, dataFim } = req.query; 
+
+    if (!dataInicio || !dataFim) {
+      return res.status(400).json({ error: "Período não informado." });
+    }
+
+    const [anoI, mesI, diaI] = dataInicio.split('-');
+    const inicio = new Date(anoI, mesI - 1, diaI, 0, 0, 0);
+
+    const [anoF, mesF, diaF] = dataFim.split('-');
+    const fim = new Date(anoF, mesF - 1, diaF, 23, 59, 59);
+
+    const pedidos = await prisma.pedido.findMany({
+      where: {
+        usuarioId: req.usuario.id,
+        status: "Concluído",
+        concluidoEm: { 
+          gte: inicio, 
+          lte: fim 
+        },
+      },
+      include: {
+        cliente: { select: { nomeRazaoSocial: true } },
+        itens: {
+          include: {
+            produto: {
+              select: { descricao: true, marca: true, precoCusto: true }
+            }
+          }
+        }
+      },
+      orderBy: { concluidoEm: "asc" },
+    });
+
+    let totalBruto = 0;
+    let totalCusto = 0;
+    
+    const faturamentoPorForma = {
+      Dinheiro: 0,
+      Pix: 0,
+      "Cartão Crédito": 0,
+      "Cartão Débito": 0,
+      "Boleto": 0, 
+      "Promissoria": 0
+    };
+
+    const produtosVendidos = [];
+
+    for (const pedido of pedidos) {
+      totalBruto += pedido.valorTotal;
+
+      // Soma o faturamento por forma de pagamento
+      if (faturamentoPorForma[pedido.formaPagamento] !== undefined) {
+        faturamentoPorForma[pedido.formaPagamento] += pedido.valorTotal;
+      }
+
+      for (const item of pedido.itens) {
+        const custoItemTotal = (item.produto?.precoCusto || 0) * item.quantidade;
+        totalCusto += custoItemTotal;
+
+        produtosVendidos.push({
+          id: item.id,
+          descricao: item.produto?.descricao || "Produto Não Identificado",
+          marca: item.produto?.marca || "-",
+          quantidade: item.quantidade,
+          precoCusto: item.produto?.precoCusto || 0,
+          precoVenda: item.valorUnitario,
+          totalVenda: item.valorTotal,
+          formaPagamento: pedido.formaPagamento
+        });
+      }
+    }
+
+    res.json({
+      produtos: produtosVendidos,
+      resumo: {
+        quantidadePedidos: pedidos.length,
+        totalBruto,
+        totalCusto,
+        totalLucro: totalBruto - totalCusto,
+        formasPagamento: faturamentoPorForma
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };

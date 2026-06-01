@@ -47,11 +47,21 @@ export function logout() {
 }
 
 export function getUsuario() {
-  const usuario =
-    Cookies.get("usuario")
-  return usuario
-    ? JSON.parse(usuario)
-    : null
+  const usuario = Cookies.get("usuario")
+
+  if (
+    !usuario ||
+    usuario === "undefined" ||
+    usuario === "null"
+  ) {
+    return null
+  }
+
+  try {
+    return JSON.parse(usuario)
+  } catch {
+    return null
+  }
 }
 
 export function isAuthenticated() {

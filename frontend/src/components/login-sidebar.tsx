@@ -22,7 +22,7 @@ export function LoginSidebar() {
     try {
       await login(email, senha)
       router.push("/dashboard")
-    } catch (error) {
+    } catch {
       setError("E-mail ou senha inválidos")
     }
   }

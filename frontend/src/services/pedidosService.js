@@ -1,7 +1,11 @@
 import  api  from "./api"
 
-export async function getPedidos() {
-  const response = await api.get("/pedidos")
+export async function getPedidos(params) {
+  if (!params) {
+    const response = await api.get("/pedidos")
+    return response.data.data ?? response.data
+  }
+  const response = await api.get("/pedidos", { params })
   return response.data
 }
 
@@ -37,4 +41,8 @@ export async function createItemPedido(data) {
 export async function updateItemPedido(id, data) {
   const response = await api.put(`/pedidos/item/${id}`, data)
   return response.data
+}
+export async function getRelatorioPedidosDia(dataInicio, dataFim) {
+  const response = await api.get(`/pedidos/relatorio/dia?dataInicio=${dataInicio}&dataFim=${dataFim}`);
+  return response.data;
 }

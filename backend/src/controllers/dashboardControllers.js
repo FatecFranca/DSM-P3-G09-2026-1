@@ -1,105 +1,72 @@
-import { PrismaClient } from "@prisma/client"
+import prisma from '../lib/prisma.js'
 
-const prisma = new PrismaClient()
-
-export const recents = async (req, res) => {
+export const getDashboardResumoCompleto = async (req, res) => {
   try {
-    const dashboard = await prisma.pedido.findMany({
-      where: {
-        usuarioId: req.usuario.id,
-        createdAt: {
-          gte: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-        }
-      },
-      orderBy: {
-        createdAt: "desc"
-      },include:{
-        cliente:true
-      }
-    })
-    res.json(dashboard)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: error.message })
-  }
-}
+    const userId = req.usuario.id;
 
-export const estoqueCritico = async (req, res) => {
-  try {
-    const produtos = await prisma.produto.findMany({
-      where: {
-        usuarioId: req.usuario.id
-      }
-    })
-    const dashboard = produtos.filter(
+    // Datas importantes para os filtros
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0); // Zera as horas para pegar do início do dia
+
+    const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+    
+    const doisDiasAtras = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalProdutos,
+      totalPedidosMes,
+      totalFornecedores,
+      totalClientes,
+      recentes,
+      produtosParaEstoqueCritico,
+      estoqueDia,
+      pedidosDia,
+      clienteDia,
+      fornecedoresDia
+    ] = await Promise.all([
+      prisma.produto.count({ where: { usuarioId: userId } }),
+      prisma.pedido.count({ where: { usuarioId: userId, createdAt: { gte: inicioMes, lt: fimMes } } }),
+      prisma.fornecedor.count({ where: { usuarioId: userId } }),
+      prisma.cliente.count({ where: { usuarioId: userId } }),
+
+      prisma.pedido.findMany({
+        where: { usuarioId: userId, createdAt: { gte: doisDiasAtras } },
+        orderBy: { createdAt: "desc" },
+        include: { cliente: true },
+        take: 20
+      }),
+
+      prisma.produto.findMany({
+        where: { usuarioId: userId },
+        select: { id: true, descricao: true, marca: true, qtdEstoque: true, qtdMinima: true, precoUnitario: true }
+      }),
+
+      prisma.produto.findMany({ where: { usuarioId: userId, createdAt: { gte: hoje } } }),
+      prisma.pedido.findMany({ where: { usuarioId: userId, createdAt: { gte: hoje } } }),
+      prisma.cliente.findMany({ where: { usuarioId: userId, createdAt: { gte: hoje } } }),
+      prisma.fornecedor.findMany({ where: { usuarioId: userId, createdAt: { gte: hoje } } })
+    ]);
+
+    const estoqueCritico = produtosParaEstoqueCritico.filter(
       produto => produto.qtdEstoque < produto.qtdMinima
-    )
-    res.json(dashboard)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: error.message })
-  }
-}
+    );
 
-export const produtoEmEstoque = async (req, res) => {
-  try {
-    const produtos = await prisma.produto.count({
-      where: {
-        usuarioId: req.usuario.id
-      }
-    })
-    res.json(produtos)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: error.message })
-  }
-}
+    res.json({
+      produtos: totalProdutos,
+      pedidos: totalPedidosMes,
+      fornecedores: totalFornecedores,
+      clientes: totalClientes,
+      estoqueCritico,
+      recentes,
+      estoqueDia,
+      pedidosDia,
+      clienteDia,
+      fornecedoresDia
+    });
 
-export const clientes = async (req, res) => {
-  try {
-    const clientes = await prisma.cliente.count({
-      where: {
-        usuarioId: req.usuario.id
-      }
-    })
-    res.json(clientes)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: error.message })
-  }
-}
-
-export const fornecedores = async (req, res) => {
-  try {
-    const fornecedores = await prisma.fornecedor.count({
-      where: {
-        usuarioId: req.usuario.id
-      }
-    })
-    res.json(fornecedores)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: error.message })
-  }
-}
-
-export const pedidosMes = async (req, res) => {
-  try {
-    console.log(req.usuario)
-    const inicioMes = new Date(new Date().getFullYear(),new Date().getMonth(),1)
-    const fimMes = new Date(new Date().getFullYear(),new Date().getMonth() + 1,1)
-    const pedidosDoMes = await prisma.pedido.count({
-      where: {
-        usuarioId: req.usuario.id,
-        createdAt: {
-          gte: inicioMes,
-          lt: fimMes
-        }
-      }
-    })
-    res.json(pedidosDoMes)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: error.message })
+    console.error("Erro ao carregar resumo do dashboard:", error);
+    res.status(500).json({ error: error.message });
   }
 }
