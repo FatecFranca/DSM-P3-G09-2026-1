@@ -211,5 +211,5 @@ Distribuído sob a licença MIT. Veja [`LICENSE`](LICENSE) para mais informaçõ
 ---
 
 <div align="center">
-  Feito por <a href="https://github.com/GuiPorto20">Guilherme Porto</a>
+  Feito por <a href="https://github.com/GuiPorto20">Guilherme Porto</a> e <a href="https://github.com/LeonardoBonamin">Leonardo Bonamin</a>
 </div>
