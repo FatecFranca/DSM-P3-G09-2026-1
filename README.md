@@ -35,6 +35,7 @@ O **Estokai** é uma aplicação web full-stack voltada para o gerenciamento de 
 - **Clientes** — cadastro de pessoas físicas e jurídicas com suporte a CPF/CNPJ, endereço completo e múltiplos contatos
 - **Fornecedores** — cadastro com CNPJ, categorias e vinculação de produtos com registro do preço da última compra
 - **Movimentações** — histórico completo de entradas e saídas com justificativa, rastreável por produto ou por pedido
+- **Relatorios** — Relatorios para fechamento de caixa, gerado por periodo selecionado e impressao em PDF
 - **Autenticação** — registro e login com senha hasheada (bcrypt), token JWT via cookie (7 dias) e proteção de rotas no Next.js middleware
 - **Painel Admin** — gerenciamento de usuários da plataforma (listar e remover)
 - **Tema escuro/claro** — suporte nativo via `next-themes`
